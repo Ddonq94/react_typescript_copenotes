@@ -48,9 +48,15 @@ function AppFilterBar() {
 
   return (
     <div>
-      <Grid container spacing={3}>
+      <Grid
+        container
+        spacing={3}
+        direction="row"
+        justify="center"
+        alignItems="flex-end"
+      >
         <Grid item xs={2}>
-          <Typography variant="h6" color="inherit" noWrap>
+          <Typography variant="h6" color="primary" noWrap>
             <i>Filter By:</i>
           </Typography>
         </Grid>

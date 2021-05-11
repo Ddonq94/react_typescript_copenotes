@@ -29,8 +29,8 @@ import ReceiptIcon from "@material-ui/icons/Receipt";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import GroupIcon from "@material-ui/icons/Group";
 import BusinessIcon from "@material-ui/icons/Business";
-import { Link } from "react-router-dom";
-import Grid from "@material-ui/core/Grid";
+import { Link, useLocation } from "react-router-dom";
+import Grid, { GridJustification } from "@material-ui/core/Grid";
 
 import Fab from "@material-ui/core/Fab";
 import AddIcon from "@material-ui/icons/Add";
@@ -38,8 +38,18 @@ import AppTable from "./AppTable";
 import AppForm from "./AppForm";
 import AppFilterBar from "./AppFilterBar";
 import AppCards from "./AppCards";
+import { Variant } from "@material-ui/core/styles/createTypography";
+import Avatar from "@material-ui/core/Avatar";
 
-const drawerWidth = 220;
+interface Props {
+  children: any;
+  headerText?: string;
+  headerTextPosition?: GridJustification;
+  headerTextSize?: Variant;
+  frameTitle?: string;
+}
+
+const drawerWidth = 210;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -55,7 +65,13 @@ const useStyles = makeStyles((theme: Theme) =>
     clearFixSmall: {
       marginTop: "20px",
     },
-
+    bg: {
+      backgroundColor: "#3F51B5",
+      color: "#ffffff",
+    },
+    top: {
+      marginTop: "60px",
+    },
     flexRight: {
       justifySelf: "flex-end",
     },
@@ -72,6 +88,7 @@ const useStyles = makeStyles((theme: Theme) =>
       },
     },
     appBar: {
+      backgroundColor: "#ffffff",
       zIndex: theme.zIndex.drawer + 1,
       transition: theme.transitions.create(["width", "margin"], {
         easing: theme.transitions.easing.sharp,
@@ -100,6 +117,12 @@ const useStyles = makeStyles((theme: Theme) =>
       width: drawerWidth,
       flexShrink: 0,
       whiteSpace: "nowrap",
+    },
+    whiteText: {
+      color: "#FFFFFF",
+    },
+    blueText: {
+      color: "#3F51B5",
     },
     drawerOpen: {
       width: drawerWidth,
@@ -138,8 +161,13 @@ const useStyles = makeStyles((theme: Theme) =>
       alignItems: "center",
       justifyContent: "space-between",
       padding: theme.spacing(0, 1),
+      backgroundColor: "#ffffff",
       // necessary for content to be below app bar
       ...theme.mixins.toolbar,
+    },
+    large: {
+      width: theme.spacing(4),
+      height: theme.spacing(4),
     },
     content: {
       flexGrow: 1,
@@ -148,21 +176,16 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function Dashboard() {
+function AppFrame({
+  children,
+  headerText,
+  headerTextPosition = "center",
+  headerTextSize,
+  frameTitle = "Title",
+}: Props) {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = useState(false);
-
-  const [
-    mobileMoreAnchorEl,
-    setMobileMoreAnchorEl,
-  ] = useState<null | HTMLElement>(null);
-
-  const mobileMenuId = "primary-search-account-menu-mobile";
-
-  const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setMobileMoreAnchorEl(event.currentTarget);
-  };
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -227,6 +250,7 @@ function Dashboard() {
       middleText: ["400"],
       footerText: ["Manage"],
       footerLink: ["/equipment"],
+      bgColor: "#72E9B5",
     },
     {
       header: "Number of Fire Trucks",
@@ -234,6 +258,7 @@ function Dashboard() {
       middleText: ["100"],
       footerText: ["Manage"],
       footerLink: ["/equipment"],
+      bgColor: "#BEDE53",
     },
     {
       header: "Equipment Due For Service",
@@ -241,6 +266,7 @@ function Dashboard() {
       middleText: ["20", "30"],
       footerText: ["Fire Ext.", "Trucks"],
       footerLink: ["/equipment", "/equipment"],
+      bgColor: "#F71C40",
     },
     {
       header: "Number of Users",
@@ -248,6 +274,7 @@ function Dashboard() {
       middleText: ["400"],
       footerText: ["Manage"],
       footerLink: ["/user"],
+      bgColor: "#E97272",
     },
     {
       header: "Number of Equipments",
@@ -255,6 +282,7 @@ function Dashboard() {
       middleText: ["100"],
       footerText: ["Manage"],
       footerLink: ["/equipment"],
+      bgColor: "#EFC75A",
     },
     {
       header: "Number of Sub-Nodes",
@@ -262,57 +290,7 @@ function Dashboard() {
       middleText: ["20", "30"],
       footerText: ["Areas", "Locations"],
       footerLink: ["/area", "/location"],
-    },
-  ];
-
-  let fields = [
-    {
-      name: "name",
-      required: true,
-      label: "Confirm Password",
-      type: "number",
-      placeholder: "**********",
-      variant: "filled",
-      disabled: false,
-      defaultValue: "",
-    },
-    {
-      name: "name",
-      required: true,
-      label: "Confirm Password",
-      type: "email",
-      placeholder: "**********",
-      variant: "filled",
-      disabled: false,
-      defaultValue: "",
-    },
-  ];
-
-  let submitString = "Save";
-
-  let columns: any = [
-    { id: "name", label: "Name", minWidth: 170 },
-    { id: "code", label: "ISO\u00a0Code", minWidth: 100 },
-    {
-      id: "population",
-      label: "Population",
-      minWidth: 170,
-      align: "right",
-      format: (value: number) => value.toLocaleString("en-US"),
-    },
-    {
-      id: "size",
-      label: "Size\u00a0(km\u00b2)",
-      minWidth: 170,
-      align: "right",
-      format: (value: number) => value.toLocaleString("en-US"),
-    },
-    {
-      id: "density",
-      label: "Density",
-      minWidth: 170,
-      align: "right",
-      format: (value: number) => value.toFixed(2),
+      bgColor: "#469EE1",
     },
   ];
 
@@ -344,6 +322,9 @@ function Dashboard() {
     createData("Brazil", "BR", 210147125, 8515767),
   ];
 
+  const path = useLocation().pathname;
+  console.log(path);
+
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -363,29 +344,33 @@ function Dashboard() {
               [classes.hide]: open,
             })}
           >
-            <MenuIcon />
+            <MenuIcon className={classes.blueText} />
           </IconButton>
-          <Typography variant="h6" color="inherit" noWrap>
-            Dashboard
-          </Typography>
-          <Typography
-            className={classes.title}
-            variant="h6"
-            color="inherit"
-            noWrap
+          <Grid
+            container
+            direction="row"
+            justify="space-between"
+            alignItems="center"
           >
-            Dashboard
-          </Typography>
+            <Typography variant="h6" color="primary" noWrap>
+              {frameTitle}
+            </Typography>
+            <Avatar
+              alt="Remy Sharp"
+              src="https://source.unsplash.com/random"
+              className={classes.large}
+            />
+          </Grid>
         </Toolbar>
       </AppBar>
       <Drawer
         variant="permanent"
-        className={clsx(classes.drawer, {
+        className={clsx(classes.bg, classes.drawer, {
           [classes.drawerOpen]: open,
           [classes.drawerClose]: !open,
         })}
         classes={{
-          paper: clsx({
+          paper: clsx(classes.bg, {
             [classes.drawerOpen]: open,
             [classes.drawerClose]: !open,
           }),
@@ -393,12 +378,12 @@ function Dashboard() {
       >
         <div className={classes.toolbar}>
           <div className={classes.siteTitle}>
-            <AccountCircleIcon />
-            <Typography variant="h6" color="inherit" noWrap>
+            <AccountCircleIcon className={classes.blueText} />
+            <Typography variant="h6" color="primary" noWrap>
               FSMS
             </Typography>
           </div>
-          <IconButton onClick={handleDrawerClose}>
+          <IconButton className={classes.blueText} onClick={handleDrawerClose}>
             {theme.direction === "rtl" ? (
               <ChevronRightIcon />
             ) : (
@@ -410,54 +395,31 @@ function Dashboard() {
         <List>
           {menuObj.map((obj, index) => (
             <Link to={obj.linkTo} key={`${obj.name}${index}`}>
-              <ListItem button>
-                <ListItemIcon>{obj.icon}</ListItemIcon>
-                <ListItemText primary={obj.name} />
+              <ListItem selected={path === obj.linkTo} button>
+                <ListItemIcon className={classes.whiteText}>
+                  {obj.icon}
+                </ListItemIcon>
+                <ListItemText
+                  className={classes.whiteText}
+                  primary={obj.name}
+                />
               </ListItem>
             </Link>
           ))}
         </List>
       </Drawer>
       <main className={classes.content}>
-        <div className={classes.toolbar} />
-        <Typography variant="h6" color="inherit" noWrap>
-          Welcome Back, Sean Uthman
-        </Typography>
-
-        <AppFilterBar />
-
-        <AppCards obj={cardsObj} />
-
-        {/* form div */}
-
-        <div className={classes.clearFix} />
-
-        <Typography variant="h6" color="inherit" noWrap>
-          Welcome Back, Sean Uthman
-        </Typography>
-        <div className={classes.clearFixSmall} />
-
-        <AppForm fields={fields} submitString={submitString} />
-
-        {/* table div */}
-
-        <div className={classes.clearFix} />
-
-        <Typography variant="h6" color="inherit" noWrap>
-          Welcome Back, Sean Uthman
-        </Typography>
-        <div className={classes.clearFixSmall} />
-
-        <AppTable columns={columns} rows={rows} />
-
-        <Grid container justify="flex-end">
-          <Fab color="default" aria-label="add">
-            <AddIcon />
-          </Fab>
+        <div className={classes.top} />
+        <Grid container justify={headerTextPosition}>
+          <Typography variant={headerTextSize} color="primary" noWrap>
+            {headerText}
+          </Typography>
         </Grid>
+
+        {children}
       </main>
     </div>
   );
 }
 
-export default Dashboard;
+export default AppFrame;

@@ -9,26 +9,10 @@ import TableHead from "@material-ui/core/TableHead";
 import TablePagination from "@material-ui/core/TablePagination";
 import TableRow from "@material-ui/core/TableRow";
 
-// interface Column {
-//   id: "name" | "code" | "population" | "size" | "density";
-//   label: string;
-//   minWidth?: number;
-//   align?: "right";
-//   format?: (value: number) => string;
-// }
-
 interface Props {
   columns: any[];
   rows: any[];
 }
-
-// interface Data {
-//   name: string;
-//   code: string;
-//   population: number;
-//   size: number;
-//   density: number;
-// }
 
 const useStyles = makeStyles({
   root: {
@@ -56,7 +40,7 @@ export default function AppTable({ columns, rows }: Props) {
   };
 
   return (
-    <Paper className={classes.root}>
+    <Paper className={classes.root} elevation={15}>
       <TableContainer className={classes.container}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>

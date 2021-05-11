@@ -11,8 +11,10 @@ import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
-import Grid from "@material-ui/core/Grid";
+import Grid, { GridJustification } from "@material-ui/core/Grid";
 import Avatar from "@material-ui/core/Avatar";
+import AppForm from "./components/AppForm";
+import { Link } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -20,7 +22,10 @@ const useStyles = makeStyles((theme: Theme) =>
       minWidth: 275,
     },
     margin: {
-      margin: theme.spacing(10),
+      margin: theme.spacing(12),
+    },
+    inMargin: {
+      margin: theme.spacing(5),
     },
     bullet: {
       display: "inline-block",
@@ -30,28 +35,131 @@ const useStyles = makeStyles((theme: Theme) =>
     title: {
       fontSize: 14,
     },
+    posUp: {
+      marginTop: 20,
+    },
     pos: {
-      marginBottom: 12,
+      marginBottom: 20,
+    },
+    large: {
+      width: theme.spacing(10),
+      height: theme.spacing(10),
     },
   })
 );
 
 export default function Signup() {
   const classes = useStyles();
-  const bull = <span className={classes.bullet}>•</span>;
+
+  let fields = [
+    {
+      name: "userName",
+      required: true,
+      label: "Admin Username",
+      type: "email",
+      placeholder: "admin@email.com",
+      variant: "filled",
+      disabled: false,
+      defaultValue: "",
+    },
+    {
+      name: "fullName",
+      required: true,
+      label: "Fullname (Surname first)",
+      type: "text",
+      placeholder: "Your Full Name",
+      variant: "filled",
+      disabled: false,
+      defaultValue: "",
+    },
+    {
+      name: "companyName",
+      required: true,
+      label: "Company Name",
+      type: "text",
+      placeholder: "Your Company Name",
+      variant: "filled",
+      disabled: false,
+      defaultValue: "",
+    },
+    {
+      name: "companyLogo",
+      required: true,
+      label: "Company Logo",
+      type: "file",
+      placeholder: "Your Company Logo",
+      variant: "filled",
+      disabled: false,
+      defaultValue: "",
+    },
+    {
+      name: "password",
+      required: true,
+      label: "Password",
+      type: "password",
+      placeholder: "Your Password",
+      variant: "filled",
+      disabled: false,
+      defaultValue: "",
+    },
+    {
+      name: "cpassword",
+      required: true,
+      label: "Confirm Password",
+      type: "password",
+      placeholder: "Your Password Again",
+      variant: "filled",
+      disabled: false,
+      defaultValue: "",
+    },
+  ];
+
+  let submitString = "Sign Up";
+  let submitButtonPosition: GridJustification = "center";
 
   return (
     <Card className={clsx(classes.root, classes.margin)}>
-      <CardContent>
+      <CardContent className={classes.inMargin}>
         <Grid container justify="center">
           <Grid container justify="center" item xs={12}>
-            <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
+            <Avatar
+              alt="Remy Sharp"
+              src="https://source.unsplash.com/random"
+              className={clsx(classes.large, classes.pos)}
+            />
           </Grid>
-          <Grid item xs={6}>
-            <Typography component="h5" variant="h5">
+          <Grid item xs={9} className={classes.pos}>
+            <Typography
+              component="h4"
+              variant="h4"
+              align="center"
+              color="primary"
+            >
               Welcome, Create Your Account Here
             </Typography>
           </Grid>
+        </Grid>
+
+        <AppForm
+          fields={fields}
+          submitString={submitString}
+          submitButtonPosition={submitButtonPosition}
+        />
+
+        <Grid
+          container
+          direction="row"
+          justify="space-between"
+          alignItems="center"
+          className={classes.posUp}
+        >
+          <Typography component="h6" variant="h6">
+            <Link to="/login"> Sign In</Link>
+          </Typography>
+
+          <Typography component="h6" variant="h6">
+            <Link to="/login"> Administrator</Link>
+          </Typography>
         </Grid>
       </CardContent>
       {/* <CardActions>

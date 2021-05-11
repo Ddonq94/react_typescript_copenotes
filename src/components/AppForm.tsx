@@ -1,4 +1,4 @@
-import Grid from "@material-ui/core/Grid";
+import Grid, { GridJustification } from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import {
@@ -9,8 +9,9 @@ import {
 } from "@material-ui/core/styles";
 
 interface Props {
-  fields?: any;
-  submitString?: any;
+  fields?: any[];
+  submitString?: string;
+  submitButtonPosition?: GridJustification;
 }
 
 const useStyles = makeStyles({
@@ -23,19 +24,26 @@ const useStyles = makeStyles({
   clearFixSmall: {
     marginTop: "20px",
   },
+  clearFix: {
+    marginTop: "40px",
+  },
   container: {
     maxHeight: 840,
   },
 });
 
-function AppForm({ fields, submitString }: Props) {
+function AppForm({
+  fields,
+  submitString,
+  submitButtonPosition = "flex-end",
+}: Props) {
   const classes = useStyles();
 
   return (
     <div>
       <form autoComplete="off">
         <Grid container spacing={10}>
-          {fields.map((field: any, index: number) => {
+          {fields?.map((field: any, index: number) => {
             return (
               <Grid key={`field${index}`} item xs={6}>
                 <TextField
@@ -53,9 +61,9 @@ function AppForm({ fields, submitString }: Props) {
             );
           })}
         </Grid>
-        <Grid container justify="flex-end">
+        <Grid container justify={submitButtonPosition}>
           <Button
-            className={classes.clearFixSmall}
+            className={classes.clearFix}
             variant="contained"
             color="primary"
           >
