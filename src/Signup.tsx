@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import clsx from "clsx";
 import {
   createStyles,
@@ -14,7 +14,8 @@ import Typography from "@material-ui/core/Typography";
 import Grid, { GridJustification } from "@material-ui/core/Grid";
 import Avatar from "@material-ui/core/Avatar";
 import AppForm from "./components/AppForm";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
+import GlobalServices from "./services/GlobalServices";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -51,68 +52,141 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function Signup() {
   const classes = useStyles();
 
-  let fields = [
+  const [userName, setUserName] = useState("a");
+  const [fullName, setFullName] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [companyLogo, setCompanyLogo] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  let history = useHistory();
+
+  const fields = [
     {
       name: "userName",
+      value: userName,
       required: true,
       label: "Admin Username",
       type: "email",
       placeholder: "admin@email.com",
       variant: "filled",
+      setter: setUserName,
       disabled: false,
       defaultValue: "",
     },
     {
       name: "fullName",
+      value: fullName,
       required: true,
       label: "Fullname (Surname first)",
       type: "text",
       placeholder: "Your Full Name",
       variant: "filled",
+      setter: setFullName,
       disabled: false,
       defaultValue: "",
     },
     {
       name: "companyName",
+      value: companyName,
       required: true,
       label: "Company Name",
       type: "text",
       placeholder: "Your Company Name",
       variant: "filled",
+      setter: setCompanyName,
       disabled: false,
       defaultValue: "",
     },
     {
       name: "companyLogo",
+      value: companyLogo,
       required: true,
       label: "Company Logo",
       type: "file",
       placeholder: "Your Company Logo",
       variant: "filled",
+      setter: setCompanyLogo,
       disabled: false,
       defaultValue: "",
     },
     {
       name: "password",
+      value: password,
       required: true,
       label: "Password",
       type: "password",
       placeholder: "Your Password",
       variant: "filled",
+      setter: setPassword,
       disabled: false,
       defaultValue: "",
     },
     {
       name: "cpassword",
+      value: confirmPassword,
       required: true,
       label: "Confirm Password",
       type: "password",
       placeholder: "Your Password Again",
       variant: "filled",
+      setter: setConfirmPassword,
       disabled: false,
       defaultValue: "",
     },
   ];
+
+  const handleSignup = async () => {
+    console.log("submit");
+
+    try {
+      const res = await GlobalServices.addNewCompany({
+        name: companyName,
+        logo_url: companyLogo,
+        status: 1,
+      });
+      let resJson = await res;
+      console.log(resJson);
+      if (res.res === "error") {
+        setErrorMessage(
+          "Something Went Wrong, Please try again or contact Admin"
+        );
+      }
+
+      if (res.res === "success") {
+        const resUser = await GlobalServices.signup({
+          name: fullName,
+          email: userName,
+          password: password,
+          password_confirmation: confirmPassword,
+          company_id: resJson.json.id,
+          area_id: 0,
+          location_id: 0,
+          type: "company",
+          status: 1,
+        });
+
+        let resUserJson = await resUser;
+        console.log(resUserJson);
+
+        if (resUserJson.res === "error") {
+          setErrorMessage(
+            "Something Went Wrong, Please try again or contact Admin"
+          );
+        }
+
+        if (resUser.res === "success") {
+          sessionStorage.setItem("user", JSON.stringify(resJson.json));
+          setErrorMessage("");
+          history.push(`/login`);
+        }
+      }
+    } catch (err) {
+      console.log(err);
+      setErrorMessage("Something Broke, Please try again or contact Admin");
+    }
+  };
 
   let submitString = "Sign Up";
   let submitButtonPosition: GridJustification = "center";
@@ -140,10 +214,15 @@ export default function Signup() {
           </Grid>
         </Grid>
 
+        <Typography align="center" color="error">
+          {errorMessage}
+        </Typography>
+
         <AppForm
           fields={fields}
           submitString={submitString}
           submitButtonPosition={submitButtonPosition}
+          submitButtonMethod={handleSignup}
         />
 
         <Grid

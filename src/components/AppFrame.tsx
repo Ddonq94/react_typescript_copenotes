@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import clsx from "clsx";
 import {
   createStyles,
@@ -40,6 +40,7 @@ import AppFilterBar from "./AppFilterBar";
 import AppCards from "./AppCards";
 import { Variant } from "@material-ui/core/styles/createTypography";
 import Avatar from "@material-ui/core/Avatar";
+import { UserContext } from "../context/UserContext";
 
 interface Props {
   children: any;
@@ -47,6 +48,7 @@ interface Props {
   headerTextPosition?: GridJustification;
   headerTextSize?: Variant;
   frameTitle?: string;
+  logoUrl?: string;
 }
 
 const drawerWidth = 210;
@@ -182,6 +184,7 @@ function AppFrame({
   headerTextPosition = "center",
   headerTextSize,
   frameTitle = "Title",
+  logoUrl = "https://source.unsplash.com/random",
 }: Props) {
   const classes = useStyles();
   const theme = useTheme();
@@ -194,6 +197,8 @@ function AppFrame({
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
+  const userContext = useContext(UserContext);
 
   let menuObj = [
     {
@@ -243,87 +248,7 @@ function AppFrame({
     },
   ];
 
-  let cardsObj = [
-    {
-      header: "Number of Fire Extinguishers",
-      type: 1,
-      middleText: ["400"],
-      footerText: ["Manage"],
-      footerLink: ["/equipment"],
-      bgColor: "#72E9B5",
-    },
-    {
-      header: "Number of Fire Trucks",
-      type: 1,
-      middleText: ["100"],
-      footerText: ["Manage"],
-      footerLink: ["/equipment"],
-      bgColor: "#BEDE53",
-    },
-    {
-      header: "Equipment Due For Service",
-      type: 2,
-      middleText: ["20", "30"],
-      footerText: ["Fire Ext.", "Trucks"],
-      footerLink: ["/equipment", "/equipment"],
-      bgColor: "#F71C40",
-    },
-    {
-      header: "Number of Users",
-      type: 1,
-      middleText: ["400"],
-      footerText: ["Manage"],
-      footerLink: ["/user"],
-      bgColor: "#E97272",
-    },
-    {
-      header: "Number of Equipments",
-      type: 1,
-      middleText: ["100"],
-      footerText: ["Manage"],
-      footerLink: ["/equipment"],
-      bgColor: "#EFC75A",
-    },
-    {
-      header: "Number of Sub-Nodes",
-      type: 2,
-      middleText: ["20", "30"],
-      footerText: ["Areas", "Locations"],
-      footerLink: ["/area", "/location"],
-      bgColor: "#469EE1",
-    },
-  ];
-
-  function createData(
-    name: string,
-    code: string,
-    population: number,
-    size: number
-  ): any {
-    const density = population / size;
-    return { name, code, population, size, density };
-  }
-
-  let rows = [
-    createData("India", "IN", 1324171354, 3287263),
-    createData("China", "CN", 1403500365, 9596961),
-    createData("Italy", "IT", 60483973, 301340),
-    createData("United States", "US", 327167434, 9833520),
-    createData("Canada", "CA", 37602103, 9984670),
-    createData("Australia", "AU", 25475400, 7692024),
-    createData("Germany", "DE", 83019200, 357578),
-    createData("Ireland", "IE", 4857000, 70273),
-    createData("Mexico", "MX", 126577691, 1972550),
-    createData("Japan", "JP", 126317000, 377973),
-    createData("France", "FR", 67022000, 640679),
-    createData("United Kingdom", "GB", 67545757, 242495),
-    createData("Russia", "RU", 146793744, 17098246),
-    createData("Nigeria", "NG", 200962417, 923768),
-    createData("Brazil", "BR", 210147125, 8515767),
-  ];
-
   const path = useLocation().pathname;
-  console.log(path);
 
   return (
     <div className={classes.root}>
@@ -355,11 +280,7 @@ function AppFrame({
             <Typography variant="h6" color="primary" noWrap>
               {frameTitle}
             </Typography>
-            <Avatar
-              alt="Remy Sharp"
-              src="https://source.unsplash.com/random"
-              className={classes.large}
-            />
+            <Avatar alt="Remy Sharp" src={logoUrl} className={classes.large} />
           </Grid>
         </Toolbar>
       </AppBar>

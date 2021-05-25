@@ -17,6 +17,7 @@ import Location from "./pages/Location";
 import Equipment from "./pages/Equipment";
 import Transaction from "./pages/Transaction";
 import User from "./pages/User";
+import { UserProvider } from "./providers/UserProvider";
 
 function App() {
   return (
@@ -24,19 +25,21 @@ function App() {
       <div className="App">
         {/* <Nav /> */}
         <Switch>
-          <Route path="/" exact component={Signup} />
-          <Route path="/login" exact component={Login} />
-          <Route path="/dashboard" exact component={Dashboard} />
-          <Route path="/profile" exact component={Profile} />
-          <Route path="/company" exact component={Company} />
-          <Route path="/area" exact component={Area} />
-          <Route path="/location" exact component={Location} />
-          <Route path="/equipment" exact component={Equipment} />
-          <Route path="/transaction" exact component={Transaction} />
-          <Route path="/user" exact component={User} />
-          <Route path="/home" exact component={Home} />
-          <Route path="/abt" exact component={Abt} />
-          <Route path="/home/:uuid" exact component={Detail} />
+          <UserProvider>
+            <Route path="/" exact component={Signup} />
+            <Route path="/login" exact component={Login} />
+            <Route path="/dashboard" exact component={Dashboard} />
+            <Route path="/profile" exact component={Profile} />
+            <Route path="/company" exact component={Company} />
+            <Route path="/area" exact component={Area} />
+            <Route path="/location" exact component={Location} />
+            <Route path="/equipment" exact component={Equipment} />
+            <Route path="/transaction" exact component={Transaction} />
+            <Route path="/user" exact component={User} />
+            <Route path="/home" exact component={Home} />
+            <Route path="/abt" exact component={Abt} />
+            <Route path="/home/:uuid" exact component={Detail} />
+          </UserProvider>
         </Switch>
       </div>
     </Router>

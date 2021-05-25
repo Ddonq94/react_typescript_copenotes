@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
 import AppFilterBar from "../components/AppFilterBar";
 import AppCards from "../components/AppCards";
 import AppFrame from "../components/AppFrame";
+import { UserContext } from "../context/UserContext";
+import usefulServices from "../services/usefulServices";
+import GlobalServices from "../services/GlobalServices";
+import { useHistory } from "react-router-dom";
 
 const drawerWidth = 220;
 
@@ -118,7 +122,13 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 function Dashboard() {
-  let cardsObj = [
+  const [cardsObj, setCardsObj] = useState([]);
+
+  const [errorMessage, setErrorMessage] = useState("");
+  const [logoUrl, setLogoUrl] = useState("https://source.unsplash.com/random");
+  const [user, setUser] = useState<any>();
+
+  let cardsObjold = [
     {
       header: "Number of Fire Extinguishers",
       type: 1,
@@ -169,40 +179,72 @@ function Dashboard() {
     },
   ];
 
-  function createData(
-    name: string,
-    code: string,
-    population: number,
-    size: number
-  ): any {
-    const density = population / size;
-    return { name, code, population, size, density };
-  }
+  const userContext = useContext(UserContext);
 
-  let rows = [
-    createData("India", "IN", 1324171354, 3287263),
-    createData("China", "CN", 1403500365, 9596961),
-    createData("Italy", "IT", 60483973, 301340),
-    createData("United States", "US", 327167434, 9833520),
-    createData("Canada", "CA", 37602103, 9984670),
-    createData("Australia", "AU", 25475400, 7692024),
-    createData("Germany", "DE", 83019200, 357578),
-    createData("Ireland", "IE", 4857000, 70273),
-    createData("Mexico", "MX", 126577691, 1972550),
-    createData("Japan", "JP", 126317000, 377973),
-    createData("France", "FR", 67022000, 640679),
-    createData("United Kingdom", "GB", 67545757, 242495),
-    createData("Russia", "RU", 146793744, 17098246),
-    createData("Nigeria", "NG", 200962417, 923768),
-    createData("Brazil", "BR", 210147125, 8515767),
-  ];
+  let history = useHistory();
+
+  useEffect(() => {
+    const loadDash = async () => {
+      if (user) {
+        try {
+          const res = await GlobalServices.dashboard({
+            Authorization: "Bearer " + user?.api_token,
+          });
+
+          let resJson = await res;
+          console.log(resJson);
+
+          if (res.res === "error") {
+            setErrorMessage(resJson.json.message);
+            if (resJson.json.message === "Unauthenticated.") {
+              history.push(`/login`);
+            }
+          }
+
+          if (res.res === "success") {
+            setCardsObj(resJson.json.data);
+
+            setErrorMessage("");
+            // history.push(`/dashboard`);
+          }
+        } catch (err) {
+          console.log(err);
+          setErrorMessage("Something Broke, Please try again or contact Admin");
+        }
+      }
+    };
+
+    loadDash();
+  }, [user]);
+
+  useEffect(() => {
+    let sessionUser = sessionStorage.getItem("user");
+    console.log(sessionUser);
+    if (
+      sessionUser === null ||
+      typeof JSON.parse(sessionUser || "") !== "object"
+    ) {
+      history.push(`/login`);
+    }
+
+    let user = JSON.parse(sessionUser || "")?.data;
+    console.log(user);
+
+    setUser(user);
+    setLogoUrl(user.path + "/" + user.company.logo_url);
+  }, []);
 
   return (
     <AppFrame
-      headerText="Welcome Back, Sean Uthman"
+      headerText={
+        user
+          ? `Welcome Back, ${usefulServices.capitalizeFirstLetter(user?.name)}`
+          : "Welcome Back, User"
+      }
       headerTextPosition="flex-start"
       headerTextSize="h5"
       frameTitle="Dashboard"
+      logoUrl={logoUrl}
     >
       <AppFilterBar />
 
