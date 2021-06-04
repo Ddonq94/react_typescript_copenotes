@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import AppFrame from "../components/AppFrame";
 import { AppBar, Box, Tabs, Tab, Typography } from "@material-ui/core";
 import TransactionFE from "./TransactionFE";
 import TransactionFT from "./TransactionFT";
+import usefulServices from "../services/usefulServices";
+import GlobalServices from "../services/GlobalServices";
+import { useHistory } from "react-router-dom";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -40,17 +43,79 @@ function Transaction() {
     },
   };
 
-  const [value, setValue] = React.useState(0);
+  const [value, setValue] = useState(0);
+  const [user, setUser] = useState<any>();
+  const [fe, setFe] = useState<any>();
+  const [ft, setFt] = useState<any>();
+
+  const [errorMessage, setErrorMessage] = useState("");
+  let history = useHistory();
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setValue(newValue);
   };
+
+  useEffect(() => {
+    const loadDash = async () => {
+      if (user) {
+        try {
+          const res = await GlobalServices.generic(
+            null,
+            "GET",
+            "Transactions",
+            {
+              Authorization: "Bearer " + user?.api_token,
+            }
+          );
+          let resJson = await res;
+          console.log(resJson);
+          if (res.res === "error") {
+            setErrorMessage(resJson.json.message);
+            if (resJson.json.message === "Unauthenticated.") {
+              history.push(`/login`);
+              return;
+            }
+          }
+          if (res.res === "success") {
+            console.log(res);
+            // return;
+
+            let all = res.json.data.transactions;
+            let fe = all.filter((tr: any) => {
+              return tr.equipment[0].type === "A";
+            });
+            let ft = all.filter((tr: any) => {
+              return tr.equipment[0].type === "B";
+            });
+
+            // console.log(fe, ft);
+
+            setFe(fe);
+            setFt(ft);
+
+            setErrorMessage("");
+          }
+        } catch (err) {
+          console.log(err);
+          setErrorMessage("Something Broke, Please try again or contact Admin");
+        }
+      }
+    };
+
+    loadDash();
+  }, [user]);
+
   return (
     <AppFrame
-      headerText="Welcome Back, Sean Uthman"
+      headerText={
+        user
+          ? `Welcome Back, ${usefulServices.capitalizeFirstLetter(user?.name)}`
+          : "Welcome Back, User"
+      }
       headerTextPosition="flex-start"
       headerTextSize="h5"
       frameTitle="Transaction Management"
+      userGetter={setUser}
     >
       <Tabs
         value={value}
@@ -64,10 +129,10 @@ function Transaction() {
       </Tabs>
 
       <TabPanel value={value} index={0}>
-        <TransactionFE />
+        {fe ? <TransactionFE parentRows={fe} /> : <TransactionFE />}
       </TabPanel>
       <TabPanel value={value} index={1}>
-        <TransactionFT />
+        {ft ? <TransactionFT parentRows={ft} /> : <TransactionFT />}
       </TabPanel>
     </AppFrame>
   );

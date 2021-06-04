@@ -1,14 +1,22 @@
 import Fab from "@material-ui/core/Fab";
 import Grid from "@material-ui/core/Grid";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import AddIcon from "@material-ui/icons/Add";
 import AppFrame from "../components/AppFrame";
 import Typography from "@material-ui/core/Typography";
 import AppTable from "../components/AppTable";
 import { Link } from "react-router-dom";
 import { Button } from "@material-ui/core";
+import clsx from "clsx";
 
-function UserLocation() {
+function UserLocation({ parentRows }: any) {
+  const [user, setUser] = useState<any>();
+
+  const [parentClass, setParentClass] = useState<any>();
+  const [columns, setColumns] = useState<any>();
+
+  const [rows, setRows] = useState<any>();
+
   const styles = {
     top: {
       marginTop: "20px",
@@ -22,42 +30,100 @@ function UserLocation() {
     },
   };
 
-  let columns: any = [
-    { id: "userName", label: "Username", minWidth: 85 },
-    { id: "fullName", label: "Full Name", minWidth: 85 },
-    { id: "companyName", label: "Company Name", minWidth: 85 },
-    { id: "status", label: "Status", minWidth: 85 },
-    {
-      id: "actions",
-      label: "Actions",
-      minWidth: 85,
-      format: (value: any) => {
-        return (
-          <div>
-            <Button variant="outlined" color="primary" size="small">
-              fish
-            </Button>
-            <Button variant="outlined" color="secondary" size="small">
-              fish
-            </Button>
-            <Button variant="outlined" size="small">
-              fish
-            </Button>
-          </div>
-        );
-      },
-    },
-  ];
+  // let rows: any = [
+  //   {
+  //     userName: "Lekki",
+  //     fullName: "Second floor ",
+  //     companyName: "Second floor ",
+  //     status: "Active",
+  //     actions: 1,
+  //   },
+  // ];
 
-  let rows: any = [
-    {
-      userName: "Lekki",
-      fullName: "Second floor ",
-      companyName: "Second floor ",
-      status: "Active",
-      actions: 1,
-    },
-  ];
+  useEffect(() => {
+    console.log(columns, rows, parentClass);
+  }, [columns]);
+
+  useEffect(() => {
+    if (parentClass) {
+      setColumns([
+        { id: "userName", label: "Username", minWidth: 85 },
+        { id: "fullName", label: "Full Name", minWidth: 85 },
+        { id: "companyName", label: "Location Name", minWidth: 85 },
+        { id: "status", label: "Status", minWidth: 85 },
+        {
+          id: "actions",
+          label: "Actions",
+          minWidth: 85,
+          format: (value: any) => {
+            return (
+              <div>
+                <Button
+                  variant="outlined"
+                  className={clsx(
+                    parentClass.textGreen,
+                    parentClass.outlinedGreen
+                  )}
+                  size="small"
+                >
+                  View
+                </Button>
+                <Button
+                  variant="outlined"
+                  className={clsx(
+                    parentClass.textOrange,
+                    parentClass.outlinedOrange
+                  )}
+                  color="secondary"
+                  size="small"
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant="outlined"
+                  className={clsx(
+                    parentClass.textCyan,
+                    parentClass.outlinedCyan
+                  )}
+                  color="inherit"
+                  size="small"
+                >
+                  Toggle
+                </Button>
+                <Button
+                  variant="outlined"
+                  className={clsx(parentClass.textRed, parentClass.outlinedRed)}
+                  size="small"
+                >
+                  Disable
+                </Button>
+              </div>
+            );
+          },
+        },
+      ]);
+    }
+  }, [parentClass]);
+
+  useEffect(() => {
+    if (parentRows) {
+      console.log(parentRows);
+      // return;
+      let prs: any[] = parentRows;
+      let newRows = parentRows.map((pr: any) => {
+        console.log(pr);
+        return {
+          userName: pr?.email || "N/A",
+          fullName: pr?.name || "N/A",
+          companyName: pr?.location[0]?.name || "N/A",
+          status: pr.status,
+          actions: pr.id,
+        };
+      });
+
+      setRows(newRows);
+    }
+  }, [parentRows]);
 
   return (
     <div>
@@ -66,19 +132,18 @@ function UserLocation() {
         direction="row"
         justify="space-between"
         alignItems="center"
-        // style={styles.top}
       >
         <Typography color="primary" variant="subtitle1">
           Manage Location Users
         </Typography>
 
         <Typography color="primary" variant="subtitle1">
-          Total: 41
+          {rows ? `Total: ${rows.length}` : ""}
         </Typography>
       </Grid>
 
       <div style={styles.table}>
-        <AppTable columns={columns} rows={rows} />
+        <AppTable columns={columns} rows={rows} classSetter={setParentClass} />
       </div>
 
       <Grid container justify="flex-end" style={styles.top}>

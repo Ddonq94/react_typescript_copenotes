@@ -52,7 +52,7 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function Signup() {
   const classes = useStyles();
 
-  const [userName, setUserName] = useState("a");
+  const [userName, setUserName] = useState("");
   const [fullName, setFullName] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [companyLogo, setCompanyLogo] = useState("");

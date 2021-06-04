@@ -25,4 +25,16 @@ export default class GlobalServices extends ApiService {
 
     return await this.request("POST", "register", obj);
   }
+
+  static async generic(
+    obj: any,
+    method: string,
+    name: string,
+    header: any
+  ): Promise<any> {
+    // obj = { email: obj.username, password: obj.password };
+    console.log(obj, header);
+
+    return await this.request(method, name, obj, header);
+  }
 }

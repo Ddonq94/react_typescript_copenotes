@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import clsx from "clsx";
 import {
   createStyles,
@@ -24,12 +24,12 @@ import RoomIcon from "@material-ui/icons/Room";
 import DashboardIcon from "@material-ui/icons/Dashboard";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import MapIcon from "@material-ui/icons/Map";
-import SettingsIcon from "@material-ui/icons/Settings";
+import BuildIcon from "@material-ui/icons/Build";
 import ReceiptIcon from "@material-ui/icons/Receipt";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import GroupIcon from "@material-ui/icons/Group";
 import BusinessIcon from "@material-ui/icons/Business";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import Grid, { GridJustification } from "@material-ui/core/Grid";
 
 import Fab from "@material-ui/core/Fab";
@@ -41,6 +41,7 @@ import AppCards from "./AppCards";
 import { Variant } from "@material-ui/core/styles/createTypography";
 import Avatar from "@material-ui/core/Avatar";
 import { UserContext } from "../context/UserContext";
+import GlobalServices from "../services/GlobalServices";
 
 interface Props {
   children: any;
@@ -48,7 +49,7 @@ interface Props {
   headerTextPosition?: GridJustification;
   headerTextSize?: Variant;
   frameTitle?: string;
-  logoUrl?: string;
+  userGetter?: any;
 }
 
 const drawerWidth = 210;
@@ -184,11 +185,14 @@ function AppFrame({
   headerTextPosition = "center",
   headerTextSize,
   frameTitle = "Title",
-  logoUrl = "https://source.unsplash.com/random",
+  userGetter,
 }: Props) {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [user, setUser] = useState<any>();
+  const [logoUrl, setLogoUrl] = useState("https://source.unsplash.com/random");
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -199,6 +203,30 @@ function AppFrame({
   };
 
   const userContext = useContext(UserContext);
+
+  let history = useHistory();
+
+  useEffect(() => {
+    userGetter && userGetter(user);
+  }, [user]);
+
+  useEffect(() => {
+    let sessionUser = sessionStorage.getItem("user");
+    console.log(sessionUser);
+    if (
+      sessionUser === null ||
+      typeof JSON.parse(sessionUser || "") !== "object"
+    ) {
+      history.push(`/login`);
+      return;
+    }
+
+    let user = JSON.parse(sessionUser || "")?.data;
+    console.log(user);
+
+    setUser(user);
+    setLogoUrl(user.path + "/" + user.company.logo_url);
+  }, []);
 
   let menuObj = [
     {
@@ -228,7 +256,7 @@ function AppFrame({
     },
     {
       name: "Equipment Mgt.",
-      icon: <SettingsIcon />,
+      icon: <BuildIcon />,
       linkTo: "/equipment",
     },
     {

@@ -1,5 +1,6 @@
 export default class ApiService {
   protected static getApiUrl(): string {
+    // return "http://127.0.0.1:8001/api";
     return "http://127.0.0.1:8000/api";
     // return "http://pkbsolutions.com/fsms/public/api";
   }
@@ -31,7 +32,7 @@ export default class ApiService {
 
     let resJson = await response.json();
 
-    // console.log(resJson);
+    console.log(resJson);
 
     // console.log(response.json());
 

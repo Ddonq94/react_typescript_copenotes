@@ -125,63 +125,10 @@ function Dashboard() {
   const [cardsObj, setCardsObj] = useState([]);
 
   const [errorMessage, setErrorMessage] = useState("");
-  const [logoUrl, setLogoUrl] = useState("https://source.unsplash.com/random");
   const [user, setUser] = useState<any>();
-
-  let cardsObjold = [
-    {
-      header: "Number of Fire Extinguishers",
-      type: 1,
-      middleText: ["400"],
-      footerText: ["Manage"],
-      footerLink: ["/equipment"],
-      bgColor: "#72E9B5",
-    },
-    {
-      header: "Number of Fire Trucks",
-      type: 1,
-      middleText: ["100"],
-      footerText: ["Manage"],
-      footerLink: ["/equipment"],
-      bgColor: "#BEDE53",
-    },
-    {
-      header: "Equipment Due For Service",
-      type: 2,
-      middleText: ["20", "30"],
-      footerText: ["Fire Ext.", "Trucks"],
-      footerLink: ["/equipment", "/equipment"],
-      bgColor: "#F71C40",
-    },
-    {
-      header: "Number of Users",
-      type: 1,
-      middleText: ["400"],
-      footerText: ["Manage"],
-      footerLink: ["/user"],
-      bgColor: "#E97272",
-    },
-    {
-      header: "Number of Equipments",
-      type: 1,
-      middleText: ["100"],
-      footerText: ["Manage"],
-      footerLink: ["/equipment"],
-      bgColor: "#EFC75A",
-    },
-    {
-      header: "Number of Sub-Nodes",
-      type: 2,
-      middleText: ["20", "30"],
-      footerText: ["Areas", "Locations"],
-      footerLink: ["/area", "/location"],
-      bgColor: "#469EE1",
-    },
-  ];
+  let history = useHistory();
 
   const userContext = useContext(UserContext);
-
-  let history = useHistory();
 
   useEffect(() => {
     const loadDash = async () => {
@@ -198,6 +145,7 @@ function Dashboard() {
             setErrorMessage(resJson.json.message);
             if (resJson.json.message === "Unauthenticated.") {
               history.push(`/login`);
+              return;
             }
           }
 
@@ -205,7 +153,6 @@ function Dashboard() {
             setCardsObj(resJson.json.data);
 
             setErrorMessage("");
-            // history.push(`/dashboard`);
           }
         } catch (err) {
           console.log(err);
@@ -217,23 +164,6 @@ function Dashboard() {
     loadDash();
   }, [user]);
 
-  useEffect(() => {
-    let sessionUser = sessionStorage.getItem("user");
-    console.log(sessionUser);
-    if (
-      sessionUser === null ||
-      typeof JSON.parse(sessionUser || "") !== "object"
-    ) {
-      history.push(`/login`);
-    }
-
-    let user = JSON.parse(sessionUser || "")?.data;
-    console.log(user);
-
-    setUser(user);
-    setLogoUrl(user.path + "/" + user.company.logo_url);
-  }, []);
-
   return (
     <AppFrame
       headerText={
@@ -244,7 +174,7 @@ function Dashboard() {
       headerTextPosition="flex-start"
       headerTextSize="h5"
       frameTitle="Dashboard"
-      logoUrl={logoUrl}
+      userGetter={setUser}
     >
       <AppFilterBar />
 
