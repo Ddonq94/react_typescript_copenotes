@@ -78,17 +78,25 @@ function Transaction() {
           }
           if (res.res === "success") {
             console.log(res);
-            // return;
 
             let all = res.json.data.transactions;
-            let fe = all.filter((tr: any) => {
-              return tr.equipment[0].type === "A";
-            });
-            let ft = all.filter((tr: any) => {
-              return tr.equipment[0].type === "B";
-            });
 
-            // console.log(fe, ft);
+            console.log(res.json.data);
+
+            let fe, ft;
+
+            if (user.type === "area" || user.type === "location") {
+              fe = res.json.data.transactionsFE;
+              ft = res.json.data.transactionsFT;
+            } else {
+              fe = all.filter((tr: any) => {
+                return tr.equipment[0].type === "A";
+              });
+              ft = all.filter((tr: any) => {
+                return tr.equipment[0].type === "B";
+              });
+            }
+            console.log(fe, ft);
 
             setFe(fe);
             setFt(ft);
@@ -129,10 +137,10 @@ function Transaction() {
       </Tabs>
 
       <TabPanel value={value} index={0}>
-        {fe ? <TransactionFE parentRows={fe} /> : <TransactionFE />}
+        {fe ? <TransactionFE parentRows={fe} user={user} /> : <TransactionFE />}
       </TabPanel>
       <TabPanel value={value} index={1}>
-        {ft ? <TransactionFT parentRows={ft} /> : <TransactionFT />}
+        {ft ? <TransactionFT parentRows={ft} user={user} /> : <TransactionFT />}
       </TabPanel>
     </AppFrame>
   );

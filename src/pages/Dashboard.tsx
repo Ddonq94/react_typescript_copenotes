@@ -176,7 +176,7 @@ function Dashboard() {
       frameTitle="Dashboard"
       userGetter={setUser}
     >
-      <AppFilterBar />
+      {user && <AppFilterBar user={user} />}
 
       <AppCards obj={cardsObj} />
     </AppFrame>

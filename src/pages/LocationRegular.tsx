@@ -7,36 +7,32 @@ import Typography from "@material-ui/core/Typography";
 import AppTable from "../components/AppTable";
 import { Link, useHistory } from "react-router-dom";
 import { Box, Button, Divider, Paper } from "@material-ui/core";
-
-import clsx from "clsx";
-import AppDrawer from "../components/AppDrawer";
 import usefulServices from "../services/usefulServices";
-import AppForm from "../components/AppForm";
+import clsx from "clsx";
 import GlobalServices from "../services/GlobalServices";
+import AppDrawer from "../components/AppDrawer";
+import AppForm from "../components/AppForm";
 
-function UserArea({ parentRows, user }: any) {
+function Location({ user }: any) {
+  // const [user, setUser] = useState<any>();
+
   const [parentClass, setParentClass] = useState<any>();
   const [columns, setColumns] = useState<any>();
-  const [allAreas, setAllAreas] = useState<any>();
 
-  const [nodesObj, setNodesObj] = useState<any>();
+  const [rows, setRows] = useState<any>();
+  const [locsObj, setLocsObj] = useState<any>();
+
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const [name, setName] = useState("");
+  const [nickName, setNickName] = useState<any>("");
+
+  const [addName, setAddName] = useState("");
+  const [addNickName, setAddNickName] = useState<any>("");
+
   const [edit, setEdit] = useState<boolean>(false);
   const [currentId, setCurrentId] = useState<number>();
 
-  const [name, setName] = useState("");
-  const [password, setPassword] = useState("");
-  const [cpassword, setCpassword] = useState("");
-  const [area, setArea] = useState<any>();
-
-  const [addName, setAddName] = useState("");
-  const [addEmail, setAddEmail] = useState("");
-  const [addPassword, setAddPassword] = useState("");
-  const [addCpassword, setAddCpassword] = useState("");
-  const [addArea, setAddArea] = useState<any>();
-
-  const [rows, setRows] = useState<any>();
-
-  const [errorMessage, setErrorMessage] = useState("");
   let history = useHistory();
 
   const styles = {
@@ -57,11 +53,21 @@ function UserArea({ parentRows, user }: any) {
   }, [columns]);
 
   useEffect(() => {
-    if (parentClass && rows && allAreas) {
+    if (parentClass && rows) {
       setColumns([
-        { id: "userName", label: "Username", minWidth: 85 },
-        { id: "fullName", label: "Full Name", minWidth: 85 },
-        { id: "areaName", label: "Area Name", minWidth: 85 },
+        { id: "name", label: "Name (Nickname)", minWidth: 85 },
+        { id: "users", label: "No. of Users", minWidth: 85 },
+        { id: "equipments", label: "No. of Equipments", minWidth: 85 },
+        {
+          id: "operators",
+          label: "No. of Operators",
+          minWidth: 85,
+        },
+        {
+          id: "devices",
+          label: "No. of Devices",
+          minWidth: 85,
+        },
         { id: "status", label: "Status", minWidth: 85 },
         {
           id: "actions",
@@ -85,6 +91,7 @@ function UserArea({ parentRows, user }: any) {
                   className={["textOrange", "outlinedOrange"]}
                   size="small"
                   content={editContent(value)}
+                  // content="some stuff"
                   drawerText="Edit"
                 />
 
@@ -115,18 +122,19 @@ function UserArea({ parentRows, user }: any) {
         },
       ]);
     }
-  }, [parentClass, rows, allAreas]);
+  }, [parentClass, rows]);
 
   useEffect(() => {
-    const loads = async () => {
+    const loadDash = async () => {
       if (user) {
         try {
-          const res = await GlobalServices.generic(null, "GET", "Areas", {
+          const res = await GlobalServices.generic(null, "GET", "Locations", {
             Authorization: "Bearer " + user?.api_token,
           });
           let resJson = await res;
           console.log(resJson);
           if (res.res === "error") {
+            setErrorMessage(resJson.json.message);
             if (resJson.json.message === "Unauthenticated.") {
               history.push(`/login`);
               return;
@@ -136,54 +144,47 @@ function UserArea({ parentRows, user }: any) {
             console.log(res);
             // return;
 
-            let areas = res.json.data.areas;
-            console.log(areas);
+            let locs =
+              user.type === "area" ? res.json.data : res.json.data.locations;
+            setLocsObj(locs);
 
-            setAllAreas(areas);
+            locs = locs.map((loc: any, ind: number) => {
+              return {
+                name: loc.name + " (" + loc.nickname + ")",
+                users: loc.users.length,
+                equipments: loc.equipments.length,
+                operators: loc.users.filter((l: any) => {
+                  return l.type === "operator";
+                }).length,
+                devices: loc.devices.length,
+                status: loc.status,
+                actions: loc.id,
+              };
+            });
 
-            // return locs;
+            setRows(locs);
+
+            setErrorMessage("");
           }
         } catch (err) {
           console.log(err);
+          setErrorMessage("Something Broke, Please try again or contact Admin");
         }
       }
-      return false;
     };
 
-    loads();
+    loadDash();
   }, [user]);
 
-  useEffect(() => {
-    if (parentRows) {
-      console.log(parentRows);
-      // return;
-      let prs: any[] = parentRows;
-      let newRows = parentRows.map((pr: any) => {
-        console.log(pr);
-        return {
-          userName: pr?.email || "N/A",
-          fullName: pr?.name || "N/A",
-          areaName: pr?.area[0].name || "N/A",
-          status: pr.status,
-          actions: pr.id,
-        };
-      });
-
-      setNodesObj(parentRows);
-
-      setRows(newRows);
-    }
-  }, [parentRows]);
-
   const viewContent = (id: any) => {
-    console.log(rows, id, nodesObj);
+    console.log(rows, id, locsObj);
 
-    if (rows && nodesObj) {
+    if (rows && locsObj) {
       let current = rows.filter((row: any) => {
         return row.actions === id;
       });
 
-      console.log(current, nodesObj);
+      console.log(current, locsObj);
 
       let content = Object.keys(current[0]).map((a: any, ind) => {
         const buttons = (
@@ -246,7 +247,7 @@ function UserArea({ parentRows, user }: any) {
             View{" "}
             <strong>
               <i>
-                {usefulServices.capitalizeFirstLetter(current[0]["fullName"])}'s{" "}
+                {usefulServices.capitalizeFirstLetter(current[0]["name"])}'s{" "}
               </i>
             </strong>
             details
@@ -262,10 +263,12 @@ function UserArea({ parentRows, user }: any) {
   };
 
   const editContent = (id: any) => {
-    if (rows && nodesObj) {
-      let current = nodesObj.filter((ao: any) => {
+    if (rows && locsObj) {
+      let current = locsObj.filter((ao: any) => {
         return ao.id === id;
       });
+
+      // console.log(current, allLocs);
 
       const fields = [
         {
@@ -282,46 +285,19 @@ function UserArea({ parentRows, user }: any) {
           span: 12,
         },
         {
-          name: "area",
-          value: area,
+          name: "nickName",
+          value: nickName,
           required: false,
-          label: "Area",
-          type: "select",
+          label: "Nick Name",
+          type: "text",
           placeholder: "",
           variant: "filled",
-          setter: setArea,
+          setter: setNickName,
           disabled: false,
-          defaultValue: current[0].area_id,
-          options: allAreas,
-          span: 12,
-        },
-        {
-          name: "password",
-          value: password,
-          required: false,
-          label: "Password",
-          type: "password",
-          placeholder: "",
-          variant: "filled",
-          setter: setPassword,
-          disabled: false,
-          span: 12,
-        },
-        {
-          name: "cpassword",
-          value: cpassword,
-          required: false,
-          label: "Confirm Password",
-          type: "password",
-          placeholder: "",
-          variant: "filled",
-          setter: setCpassword,
-          disabled: false,
+          defaultValue: current[0].nickname,
           span: 12,
         },
       ];
-
-      console.log(current[0], fields);
 
       return (
         <Box style={{ margin: "10px" }} width={450}>
@@ -353,21 +329,17 @@ function UserArea({ parentRows, user }: any) {
 
   useEffect(() => {
     console.log(name);
-    console.log(password);
-    console.log(cpassword);
-    console.log(area);
+    console.log(nickName);
     console.log(edit);
     let obj: any = {
       name: name,
-      password: password,
-      cpassword: cpassword,
-      area_id: area,
+      nickname: nickName,
     };
 
     if (currentId && edit) {
       handleEdit(currentId, obj);
     }
-  }, [name, password, cpassword, edit, area, currentId]);
+  }, [name, nickName, edit, currentId]);
 
   const submitParams = (id: any, ed: any) => {
     console.log(id, ed);
@@ -378,11 +350,10 @@ function UserArea({ parentRows, user }: any) {
   };
 
   const handleEdit = async (id: any, obj: any) => {
-    if (
-      obj.name.length < 3 &&
-      obj.password.length < 3 &&
-      obj.area_id === undefined
-    ) {
+    console.log(obj.name.length);
+    // console.log(JSON.parse(obj.locations).length);
+
+    if (obj.name.length < 3 && obj.nickname.length < 3) {
       console.log(id, "handle edit");
       setEdit(false);
 
@@ -392,21 +363,12 @@ function UserArea({ parentRows, user }: any) {
     }
 
     try {
-      if (obj.password !== obj.cpassword) {
-        return;
-      }
-
       if (obj.name.length < 3) {
         delete obj.name;
       }
-      if (obj.password.length < 3) {
-        delete obj.password;
+      if (obj.nickname.length < 3) {
+        delete obj.nickname;
       }
-
-      if (obj.area_id === undefined) {
-        delete obj.area_id;
-      }
-      delete obj.cpassword;
 
       if (Object.keys(obj).length === 0) {
         console.log("how did it even get here");
@@ -414,14 +376,7 @@ function UserArea({ parentRows, user }: any) {
 
         return;
       }
-
-      // obj["company_id"] = user.company_id;
-      // obj["area_id"] = 0;
-      // obj["location_id"] = 0;
-      // obj["type"] = "company";
-      // obj["status"] = "0";
-
-      const res = await GlobalServices.generic(obj, "PUT", "Users/" + id, {
+      const res = await GlobalServices.generic(obj, "PUT", "Locations/" + id, {
         Authorization: "Bearer " + user?.api_token,
       });
       let resJson = await res;
@@ -449,7 +404,7 @@ function UserArea({ parentRows, user }: any) {
   const toggler = async (id: any) => {
     console.log(id);
 
-    let current = nodesObj.filter((ao: any) => {
+    let current = locsObj.filter((ao: any) => {
       return ao.id === id;
     });
 
@@ -460,7 +415,7 @@ function UserArea({ parentRows, user }: any) {
       const res = await GlobalServices.generic(
         { status },
         "PUT",
-        "Users/" + id,
+        "Locations/" + id,
         {
           Authorization: "Bearer " + user?.api_token,
         }
@@ -503,51 +458,14 @@ function UserArea({ parentRows, user }: any) {
       span: 12,
     },
     {
-      name: "email",
-      value: addEmail,
+      name: "nickName",
+      value: addNickName,
       required: false,
-      label: "Email",
-      type: "email",
+      label: "Nick Name",
+      type: "text",
       placeholder: "",
       variant: "filled",
-      setter: setAddEmail,
-      disabled: false,
-      span: 12,
-    },
-    {
-      name: "area",
-      value: addArea,
-      required: false,
-      label: "Area",
-      type: "select",
-      placeholder: "",
-      variant: "filled",
-      setter: setAddArea,
-      disabled: false,
-      options: allAreas,
-      span: 12,
-    },
-    {
-      name: "password",
-      value: addPassword,
-      required: false,
-      label: "Password",
-      type: "password",
-      placeholder: "",
-      variant: "filled",
-      setter: setAddPassword,
-      disabled: false,
-      span: 12,
-    },
-    {
-      name: "cpassword",
-      value: addCpassword,
-      required: false,
-      label: "Confirm Password",
-      type: "password",
-      placeholder: "",
-      variant: "filled",
-      setter: setAddCpassword,
+      setter: setAddNickName,
       disabled: false,
       span: 12,
     },
@@ -558,7 +476,7 @@ function UserArea({ parentRows, user }: any) {
       return (
         <Box style={{ margin: "10px" }} width={450}>
           <Typography color="primary" variant="h6">
-            Add New User
+            Add New Locations
           </Typography>
           <Divider />
 
@@ -579,15 +497,9 @@ function UserArea({ parentRows, user }: any) {
   };
 
   const handleAdd = async () => {
-    console.log(addName, addEmail, addPassword, addCpassword);
+    console.log(addName, addNickName);
 
-    if (
-      addName.length < 3 ||
-      addEmail.length < 3 ||
-      addPassword.length < 3 ||
-      addPassword !== addCpassword ||
-      addArea === undefined
-    ) {
+    if (addName.length < 3 || addNickName.length < 3) {
       console.log("handle add validate");
 
       return;
@@ -600,16 +512,12 @@ function UserArea({ parentRows, user }: any) {
       const res = await GlobalServices.generic(
         {
           name: addName,
-          email: addEmail,
-          password: addPassword,
+          nickname: addNickName,
+          status: 0,
           company_id: user.company_id,
-          area_id: addArea,
-          location_id: 0,
-          type: "area",
-          status: "0",
         },
         "POST",
-        "Users",
+        "Locations",
         {
           Authorization: "Bearer " + user?.api_token,
         }
@@ -637,15 +545,16 @@ function UserArea({ parentRows, user }: any) {
   };
 
   return (
-    <div>
+    <>
       <Grid
         container
         direction="row"
         justify="space-between"
         alignItems="center"
+        style={styles.top}
       >
         <Typography color="primary" variant="subtitle1">
-          Manage Area Users
+          Manage All
         </Typography>
 
         <Typography color="primary" variant="subtitle1">
@@ -671,8 +580,8 @@ function UserArea({ parentRows, user }: any) {
           />
         )}
       </Grid>
-    </div>
+    </>
   );
 }
 
-export default UserArea;
+export default Location;

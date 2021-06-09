@@ -79,22 +79,32 @@ function User() {
             // return;
 
             let all = res.json.data.users;
-            let coyu = all
-              .filter((user: any) => {
-                return user.type === "company";
-              })
-              .map((c: any) => {
-                let company = res.json.data;
-                delete company.users;
-                return { ...c, company };
-              });
+            let coyu =
+              user.type === "area"
+                ? null
+                : all
+                    .filter((user: any) => {
+                      return user.type === "company";
+                    })
+                    .map((c: any) => {
+                      let company = res.json.data;
+                      delete company.users;
+                      return { ...c, company };
+                    });
 
-            let areau = all.filter((user: any) => {
-              return user.type === "area";
-            });
-            let locu = all.filter((user: any) => {
-              return user.type === "location";
-            });
+            let areau =
+              user.type === "area"
+                ? res.json.data.areaUsers
+                : all.filter((user: any) => {
+                    return user.type === "area";
+                  });
+
+            let locu =
+              user.type === "area" || user.type === "location"
+                ? res.json.data.locUsers
+                : all.filter((user: any) => {
+                    return user.type === "location";
+                  });
 
             console.log(coyu, areau, locu);
 
@@ -133,20 +143,35 @@ function User() {
         textColor="primary"
         centered
       >
-        <Tab label="Company Users" />
-        <Tab label="Area Users" />
+        {user && user.type !== "area" && user.type !== "location" && (
+          <Tab label="Company Users" />
+        )}
+        {user && user.type !== "location" && <Tab label="Area Users" />}
         <Tab label="Location Users" />
       </Tabs>
 
-      <TabPanel value={value} index={0}>
-        {coy ? <UserCompany parentRows={coy} /> : <UserCompany />}
-      </TabPanel>
-      <TabPanel value={value} index={1}>
-        {area ? <UserArea parentRows={area} /> : <UserArea />}
-      </TabPanel>
-      <TabPanel value={value} index={2}>
-        {loc ? <UserLocation parentRows={loc} /> : <UserLocation />}
-      </TabPanel>
+      {user && user.type !== "area" && user.type !== "location" && (
+        <TabPanel value={value} index={0}>
+          {coy ? <UserCompany parentRows={coy} user={user} /> : <UserCompany />}
+        </TabPanel>
+      )}
+      {user && user.type !== "location" && (
+        <TabPanel value={value} index={user.type === "area" ? 0 : 1}>
+          {area ? <UserArea parentRows={area} user={user} /> : <UserArea />}
+        </TabPanel>
+      )}
+      {user && (
+        <TabPanel
+          value={value}
+          index={user.type === "area" ? 1 : user.type === "location" ? 0 : 2}
+        >
+          {loc ? (
+            <UserLocation parentRows={loc} user={user} />
+          ) : (
+            <UserLocation />
+          )}
+        </TabPanel>
+      )}
     </AppFrame>
   );
 }

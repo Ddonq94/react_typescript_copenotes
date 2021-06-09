@@ -1,52 +1,47 @@
-import Typography from "@material-ui/core/Typography";
-import { Divider } from "antd";
+import Fab from "@material-ui/core/Fab";
+import Grid from "@material-ui/core/Grid";
 import React, { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
-import AppCards from "../components/AppCards";
-import AppForm from "../components/AppForm";
+import AddIcon from "@material-ui/icons/Add";
 import AppFrame from "../components/AppFrame";
-import GlobalServices from "../services/GlobalServices";
+import Typography from "@material-ui/core/Typography";
+import AppTable from "../components/AppTable";
+import { Link, useHistory } from "react-router-dom";
+import { Box, Button, Divider, Paper } from "@material-ui/core";
 import usefulServices from "../services/usefulServices";
+import clsx from "clsx";
+import GlobalServices from "../services/GlobalServices";
+import AppDrawer from "../components/AppDrawer";
+import AppForm from "../components/AppForm";
+import AppCards from "../components/AppCards";
 
-function Company() {
+function Location({ user, userSetter }: any) {
   const [cardsObj, setCardsObj] = useState([]);
   const [fields, setFields] = useState<any>();
 
   const [errorMessage, setErrorMessage] = useState("");
-  const [user, setUser] = useState<any>();
-  let history = useHistory();
 
-  const [companyName, setCompanyName] = useState("");
-  const [companyLogo, setCompanyLogo] = useState("");
+  const [name, setName] = useState("");
+  const [nickName, setNickName] = useState<any>("");
   const [disableName, setDisableName] = useState<boolean>(true);
+
+  let history = useHistory();
 
   const styles = {
     top: {
-      marginBottom: "20px",
+      marginTop: "20px",
     },
     bottom: {
-      borderBottom: "1px solid #707070",
-      marginTop: "110px",
       marginBottom: "20px",
+    },
+    table: {
+      marginTop: "20px",
+      marginBottom: "40px",
     },
   };
 
   useEffect(() => {
-    console.log(companyName);
-
-    setDisableName(companyName.length < 3);
-  }, [companyName]);
-
-  useEffect(() => {
     const loadDash = async () => {
       if (user) {
-        const types = usefulServices.getCoyTypes();
-
-        if (!types.includes(user.type)) {
-          history.push(`/dashboard`);
-          return;
-        }
-
         try {
           const res = await GlobalServices.dashboard({
             Authorization: "Bearer " + user?.api_token,
@@ -79,53 +74,39 @@ function Company() {
   }, [user]);
 
   useEffect(() => {
-    if (user) {
-      setFields([
-        {
-          name: "companyName",
-          value: companyName,
-          required: true,
-          label: "Company Name",
-          type: "text",
-          placeholder: "Your Company Name",
-          variant: "filled",
-          setter: setCompanyName,
-          disabled: false,
-          defaultValue: user.company.name,
-        },
-        {
-          name: "companyLogo",
-          value: companyLogo,
-          required: true,
-          label: "Company Logo",
-          type: "file",
-          placeholder: "Your Company Logo",
-          variant: "filled",
-          setter: setCompanyLogo,
-          disabled: false,
-          defaultValue: "",
-        },
-      ]);
+    console.log(name, nickName);
+    if (name.length < 3 && nickName.length < 3) {
+      setDisableName(true);
+    } else {
+      setDisableName(false);
     }
-  }, [user]);
+  }, [name, nickName]);
 
   const handleEdit = async () => {
     let obj: any = {
-      name: companyName,
-      logo_url: companyLogo,
+      name: name,
+      nickname: nickName,
+      // locations: JSON.stringify(locations),
     };
 
-    if (obj.logo_url === "") {
-      obj = {
-        name: companyName,
-      };
-    }
-
     try {
+      if (obj.name.length < 3) {
+        delete obj.name;
+      }
+      if (obj.nickname.length < 3) {
+        delete obj.nickname;
+      }
+
+      if (Object.keys(obj).length === 0) {
+        console.log("how did it even get here");
+
+        return;
+      }
+
       const res = await GlobalServices.generic(
         obj,
         "PUT",
-        "Companies/" + user.company.id,
+        "Locations/" + user.location[0].id,
         {
           Authorization: "Bearer " + user?.api_token,
         }
@@ -141,14 +122,15 @@ function Company() {
       }
       if (res.res === "success") {
         let oldUser = JSON.parse(sessionStorage.getItem("user") || "");
-        let oldCompany = oldUser?.data?.company;
-
-        let newCompany = Object.assign(oldCompany, resJson.json.data);
-        oldUser.data.company = newCompany;
+        let oldLoc = oldUser?.data?.location[0];
+        let newLoc = Object.assign(oldLoc, resJson.json);
+        oldUser.data.location[0] = newLoc;
         let newUser = oldUser;
+        console.log(newUser);
 
         sessionStorage.setItem("user", JSON.stringify(newUser));
-        setUser(newUser.data);
+
+        userSetter(newUser.data);
 
         setErrorMessage("");
       }
@@ -158,20 +140,44 @@ function Company() {
     }
   };
 
+  useEffect(() => {
+    if (user) {
+      setFields([
+        {
+          name: "name",
+          value: name,
+          required: false,
+          label: "Name",
+          type: "text",
+          placeholder: "",
+          variant: "filled",
+          setter: setName,
+          disabled: false,
+          defaultValue: user.location[0].name,
+          span: 6,
+        },
+        {
+          name: "nickName",
+          value: nickName,
+          required: false,
+          label: "Nick Name",
+          type: "text",
+          placeholder: "",
+          variant: "filled",
+          setter: setNickName,
+          disabled: false,
+          defaultValue: user.location[0].nickname,
+          span: 6,
+        },
+      ]);
+    }
+  }, [user]);
+
   return (
-    <AppFrame
-      headerText={
-        user
-          ? `Welcome Back, ${usefulServices.capitalizeFirstLetter(user?.name)}`
-          : "Welcome Back, User"
-      }
-      headerTextPosition="flex-start"
-      headerTextSize="h5"
-      frameTitle="Company Management"
-      userGetter={setUser}
-    >
-      <div style={styles.top}></div>
+    <>
+      <div style={styles.top} />
       <AppCards obj={cardsObj} />
+      <div style={styles.bottom} />
 
       <Typography
         style={styles.bottom}
@@ -179,7 +185,7 @@ function Company() {
         variant="h5"
         component="h2"
       >
-        Company Information
+        Location Information
         <Divider />
       </Typography>
 
@@ -189,8 +195,8 @@ function Company() {
         submitButtonMethod={handleEdit}
         buttonDisabled={disableName}
       />
-    </AppFrame>
+    </>
   );
 }
 
-export default Company;
+export default Location;

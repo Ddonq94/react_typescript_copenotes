@@ -168,7 +168,11 @@ function EquipmentFE({ parentRows, user }: any) {
             console.log(res);
             // return;
 
-            let locs = res.json.data.locations;
+            // let locs = res.json.data.locations;
+            let locs =
+              user.type === "area" || user.type === "location"
+                ? res.json.data
+                : res.json.data.locations;
             console.log(locs);
 
             setAllLocs(locs);
@@ -396,7 +400,7 @@ function EquipmentFE({ parentRows, user }: any) {
         delete obj.location_place;
       }
       if (obj.location_id === undefined) {
-        delete obj.location_place;
+        delete obj.location_id;
       }
 
       if (Object.keys(obj).length === 0) {

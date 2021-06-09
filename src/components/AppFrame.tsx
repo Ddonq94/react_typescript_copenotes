@@ -42,6 +42,7 @@ import { Variant } from "@material-ui/core/styles/createTypography";
 import Avatar from "@material-ui/core/Avatar";
 import { UserContext } from "../context/UserContext";
 import GlobalServices from "../services/GlobalServices";
+import usefulServices from "../services/usefulServices";
 
 interface Props {
   children: any;
@@ -193,6 +194,7 @@ function AppFrame({
   const [errorMessage, setErrorMessage] = useState("");
   const [user, setUser] = useState<any>();
   const [logoUrl, setLogoUrl] = useState("https://source.unsplash.com/random");
+  const [menuObj, setMenuObj] = useState<any>();
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -207,6 +209,74 @@ function AppFrame({
   let history = useHistory();
 
   useEffect(() => {
+    let menuLocObj = [
+      {
+        name: "Dashboard",
+        icon: <DashboardIcon />,
+        linkTo: "/dashboard",
+      },
+      {
+        name: "Profile Mgt.",
+        icon: <AccountCircleIcon />,
+        linkTo: "/profile",
+      },
+      {
+        name: "Company Mgt.",
+        icon: <BusinessIcon />,
+        linkTo: "/company",
+      },
+      {
+        name: "Area Mgt.",
+        icon: <MapIcon />,
+        linkTo: "/area",
+      },
+      {
+        name: "Location Mgt.",
+        icon: <RoomIcon />,
+        linkTo: "/location",
+      },
+      {
+        name: "Equipment Mgt.",
+        icon: <BuildIcon />,
+        linkTo: "/equipment",
+      },
+      {
+        name: "Transaction Mgt.",
+        icon: <ReceiptIcon />,
+        linkTo: "/transaction",
+      },
+      {
+        name: "User Mgt.",
+        icon: <GroupIcon />,
+        linkTo: "/user",
+      },
+      {
+        name: "Logout",
+        icon: <ExitToAppIcon />,
+        linkTo: "/login",
+      },
+    ];
+
+    if (user) {
+      const coytypes = usefulServices.getCoyTypes();
+
+      if (!coytypes.includes(user.type)) {
+        menuLocObj = menuLocObj.filter((mlo: any) => {
+          return mlo.name !== "Company Mgt.";
+        });
+      }
+
+      const artypes = usefulServices.getAreaTypes();
+
+      if (!artypes.includes(user.type)) {
+        menuLocObj = menuLocObj.filter((mlo: any) => {
+          return mlo.name !== "Area Mgt.";
+        });
+      }
+
+      setMenuObj(menuLocObj);
+    }
+
     userGetter && userGetter(user);
   }, [user]);
 
@@ -227,54 +297,6 @@ function AppFrame({
     setUser(user);
     setLogoUrl(user.path + "/" + user.company.logo_url);
   }, []);
-
-  let menuObj = [
-    {
-      name: "Dashboard",
-      icon: <DashboardIcon />,
-      linkTo: "/dashboard",
-    },
-    {
-      name: "Profile Mgt.",
-      icon: <AccountCircleIcon />,
-      linkTo: "/profile",
-    },
-    {
-      name: "Company Mgt.",
-      icon: <BusinessIcon />,
-      linkTo: "/company",
-    },
-    {
-      name: "Area Mgt.",
-      icon: <MapIcon />,
-      linkTo: "/area",
-    },
-    {
-      name: "Location Mgt.",
-      icon: <RoomIcon />,
-      linkTo: "/location",
-    },
-    {
-      name: "Equipment Mgt.",
-      icon: <BuildIcon />,
-      linkTo: "/equipment",
-    },
-    {
-      name: "Transaction Mgt.",
-      icon: <ReceiptIcon />,
-      linkTo: "/transaction",
-    },
-    {
-      name: "User Mgt.",
-      icon: <GroupIcon />,
-      linkTo: "/user",
-    },
-    {
-      name: "Logout",
-      icon: <ExitToAppIcon />,
-      linkTo: "/login",
-    },
-  ];
 
   const path = useLocation().pathname;
 
@@ -341,21 +363,23 @@ function AppFrame({
           </IconButton>
         </div>
         <Divider />
-        <List>
-          {menuObj.map((obj, index) => (
-            <Link to={obj.linkTo} key={`${obj.name}${index}`}>
-              <ListItem selected={path === obj.linkTo} button>
-                <ListItemIcon className={classes.whiteText}>
-                  {obj.icon}
-                </ListItemIcon>
-                <ListItemText
-                  className={classes.whiteText}
-                  primary={obj.name}
-                />
-              </ListItem>
-            </Link>
-          ))}
-        </List>
+        {menuObj && (
+          <List>
+            {menuObj.map((obj: any, index: any) => (
+              <Link to={obj.linkTo} key={`${obj.name}${index}`}>
+                <ListItem selected={path === obj.linkTo} button>
+                  <ListItemIcon className={classes.whiteText}>
+                    {obj.icon}
+                  </ListItemIcon>
+                  <ListItemText
+                    className={classes.whiteText}
+                    primary={obj.name}
+                  />
+                </ListItem>
+              </Link>
+            ))}
+          </List>
+        )}
       </Drawer>
       <main className={classes.content}>
         <div className={classes.top} />

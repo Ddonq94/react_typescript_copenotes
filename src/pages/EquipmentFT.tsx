@@ -167,7 +167,11 @@ function EquipmentFT({ parentRows, user }: any) {
             console.log(res);
             // return;
 
-            let locs = res.json.data.locations;
+            // let locs = res.json.data.locations;
+            let locs =
+              user.type === "area" || user.type === "location"
+                ? res.json.data
+                : res.json.data.locations;
             console.log(locs);
 
             setAllLocs(locs);

@@ -38,13 +38,17 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function AppFilterBar() {
+function AppFilterBar({ user }: any) {
   const classes = useStyles();
   const theme = useTheme();
 
   const [userType, setUserType] = useState();
   const [equipment, setEquipment] = useState();
   const [subNode, setSubNode] = useState();
+
+  const companyTypes = ["super", "company"];
+  const areaTypes = ["super", "company", "area"];
+  const types = ["super", "company", "area", "location"];
 
   return (
     <div>
