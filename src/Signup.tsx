@@ -16,6 +16,7 @@ import Avatar from "@material-ui/core/Avatar";
 import AppForm from "./components/AppForm";
 import { Link, useHistory } from "react-router-dom";
 import GlobalServices from "./services/GlobalServices";
+import { LinearProgress } from "@material-ui/core";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -23,10 +24,10 @@ const useStyles = makeStyles((theme: Theme) =>
       minWidth: 275,
     },
     margin: {
-      margin: theme.spacing(12),
+      margin: theme.spacing(9),
     },
     inMargin: {
-      margin: theme.spacing(5),
+      margin: theme.spacing(2),
     },
     bullet: {
       display: "inline-block",
@@ -40,7 +41,7 @@ const useStyles = makeStyles((theme: Theme) =>
       marginTop: 20,
     },
     pos: {
-      marginBottom: 20,
+      marginBottom: 30,
     },
     large: {
       width: theme.spacing(10),
@@ -59,6 +60,8 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+
+  const [loading, setLoading] = useState(false);
 
   let history = useHistory();
 
@@ -140,6 +143,8 @@ export default function Signup() {
   const handleSignup = async () => {
     console.log("submit");
 
+    setLoading(true);
+
     try {
       const res = await GlobalServices.addNewCompany({
         name: companyName,
@@ -147,6 +152,8 @@ export default function Signup() {
         status: 1,
       });
       let resJson = await res;
+      setLoading(false);
+
       console.log(resJson);
       if (res.res === "error") {
         setErrorMessage(
@@ -192,14 +199,14 @@ export default function Signup() {
   let submitButtonPosition: GridJustification = "center";
 
   return (
-    <Card className={clsx(classes.root, classes.margin)}>
+    <Card className={clsx(classes.root, classes.margin, classes.pos)}>
       <CardContent className={classes.inMargin}>
         <Grid container justify="center">
           <Grid container justify="center" item xs={12}>
             <Avatar
               alt="Remy Sharp"
               src="https://source.unsplash.com/random"
-              className={clsx(classes.large, classes.pos)}
+              className={clsx(classes.large, classes.inMargin)}
             />
           </Grid>
           <Grid item xs={9} className={classes.pos}>
@@ -210,6 +217,7 @@ export default function Signup() {
               color="primary"
             >
               Welcome, Create Your Account Here
+              {loading && <LinearProgress />}
             </Typography>
           </Grid>
         </Grid>

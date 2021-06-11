@@ -5,7 +5,7 @@ import AddIcon from "@material-ui/icons/Add";
 import AppFrame from "../components/AppFrame";
 import Typography from "@material-ui/core/Typography";
 import AppTable from "../components/AppTable";
-import { Box, Button, Divider, Paper } from "@material-ui/core";
+import { Box, Button, Divider, LinearProgress, Paper } from "@material-ui/core";
 import clsx from "clsx";
 import usefulServices from "../services/usefulServices";
 import GlobalServices from "../services/GlobalServices";
@@ -26,6 +26,8 @@ function AreaAdmin({ user, userSetter }: any) {
 
   const [disableName, setDisableName] = useState<boolean>(true);
 
+  const [loading, setLoading] = useState(false);
+
   let history = useHistory();
 
   const styles = {
@@ -44,6 +46,7 @@ function AreaAdmin({ user, userSetter }: any) {
   useEffect(() => {
     const loadDash = async () => {
       if (user) {
+        setLoading(true);
         try {
           const res = await GlobalServices.dashboard({
             Authorization: "Bearer " + user?.api_token,
@@ -51,7 +54,7 @@ function AreaAdmin({ user, userSetter }: any) {
 
           let resJson = await res;
           console.log(resJson);
-
+          setLoading(false);
           if (res.res === "error") {
             setErrorMessage(resJson.json.message);
             if (resJson.json.message === "Unauthenticated.") {
@@ -90,6 +93,7 @@ function AreaAdmin({ user, userSetter }: any) {
       nickname: nickName,
       // locations: JSON.stringify(locations),
     };
+    setLoading(true);
 
     try {
       if (obj.name.length < 3) {
@@ -118,6 +122,8 @@ function AreaAdmin({ user, userSetter }: any) {
       );
       let resJson = await res;
       console.log(resJson);
+      setLoading(false);
+
       if (res.res === "error") {
         setErrorMessage(resJson.json.message);
         if (resJson.json.message === "Unauthenticated.") {
@@ -195,6 +201,7 @@ function AreaAdmin({ user, userSetter }: any) {
 
   return (
     <>
+      {loading && <LinearProgress />}
       <div style={styles.top} />
       <AppCards obj={cardsObj} />
       <div style={styles.bottom} />
@@ -208,6 +215,7 @@ function AreaAdmin({ user, userSetter }: any) {
         Area Information
         <Divider />
       </Typography>
+      {loading && <LinearProgress />}
 
       <AppForm
         fields={fields}

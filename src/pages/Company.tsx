@@ -1,3 +1,4 @@
+import { LinearProgress } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import { Divider } from "antd";
 import React, { useEffect, useState } from "react";
@@ -14,6 +15,8 @@ function Company() {
 
   const [errorMessage, setErrorMessage] = useState("");
   const [user, setUser] = useState<any>();
+  const [loading, setLoading] = useState(false);
+
   let history = useHistory();
 
   const [companyName, setCompanyName] = useState("");
@@ -25,7 +28,7 @@ function Company() {
       marginBottom: "20px",
     },
     bottom: {
-      borderBottom: "1px solid #707070",
+      // borderBottom: "1px solid #fafafa",
       marginTop: "110px",
       marginBottom: "20px",
     },
@@ -47,6 +50,8 @@ function Company() {
           return;
         }
 
+        setLoading(true);
+
         try {
           const res = await GlobalServices.dashboard({
             Authorization: "Bearer " + user?.api_token,
@@ -54,6 +59,7 @@ function Company() {
 
           let resJson = await res;
           console.log(resJson);
+          setLoading(false);
 
           if (res.res === "error") {
             setErrorMessage(resJson.json.message);
@@ -121,6 +127,8 @@ function Company() {
       };
     }
 
+    setLoading(true);
+
     try {
       const res = await GlobalServices.generic(
         obj,
@@ -132,6 +140,8 @@ function Company() {
       );
       let resJson = await res;
       console.log(resJson);
+      setLoading(false);
+
       if (res.res === "error") {
         setErrorMessage(resJson.json.message);
         if (resJson.json.message === "Unauthenticated.") {
@@ -169,8 +179,10 @@ function Company() {
       headerTextSize="h5"
       frameTitle="Company Management"
       userGetter={setUser}
+      loading={loading}
     >
       <div style={styles.top}></div>
+      {/* {loading && <LinearProgress />} */}
       <AppCards obj={cardsObj} />
 
       <Typography

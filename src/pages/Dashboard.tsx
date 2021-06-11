@@ -8,6 +8,7 @@ import { UserContext } from "../context/UserContext";
 import usefulServices from "../services/usefulServices";
 import GlobalServices from "../services/GlobalServices";
 import { useHistory } from "react-router-dom";
+import { LinearProgress } from "@material-ui/core";
 
 const drawerWidth = 220;
 
@@ -126,6 +127,8 @@ function Dashboard() {
 
   const [errorMessage, setErrorMessage] = useState("");
   const [user, setUser] = useState<any>();
+  const [loading, setLoading] = useState(false);
+
   let history = useHistory();
 
   const userContext = useContext(UserContext);
@@ -133,6 +136,8 @@ function Dashboard() {
   useEffect(() => {
     const loadDash = async () => {
       if (user) {
+        setLoading(true);
+
         try {
           const res = await GlobalServices.dashboard({
             Authorization: "Bearer " + user?.api_token,
@@ -140,6 +145,7 @@ function Dashboard() {
 
           let resJson = await res;
           console.log(resJson);
+          setLoading(false);
 
           if (res.res === "error") {
             setErrorMessage(resJson.json.message);
@@ -175,7 +181,9 @@ function Dashboard() {
       headerTextSize="h5"
       frameTitle="Dashboard"
       userGetter={setUser}
+      loading={loading}
     >
+      {/* {loading && <LinearProgress />} */}
       {user && <AppFilterBar user={user} />}
 
       <AppCards obj={cardsObj} />

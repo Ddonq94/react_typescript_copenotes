@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import AppFrame from "../components/AppFrame";
-import { AppBar, Box, Tabs, Tab, Typography } from "@material-ui/core";
+import {
+  AppBar,
+  Box,
+  Tabs,
+  Tab,
+  Typography,
+  LinearProgress,
+} from "@material-ui/core";
 import EquipmentFE from "./EquipmentFE";
 import EquipmentFT from "./EquipmentFT";
 import usefulServices from "../services/usefulServices";
@@ -47,6 +54,7 @@ function Equipment() {
   const [user, setUser] = useState<any>();
   const [fe, setFe] = useState<any>();
   const [ft, setFt] = useState<any>();
+  const [loading, setLoading] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState("");
   let history = useHistory();
@@ -58,12 +66,16 @@ function Equipment() {
   useEffect(() => {
     const loadDash = async () => {
       if (user) {
+        setLoading(true);
+
         try {
           const res = await GlobalServices.generic(null, "GET", "Equipments", {
             Authorization: "Bearer " + user?.api_token,
           });
           let resJson = await res;
           console.log(resJson);
+          setLoading(false);
+
           if (res.res === "error") {
             setErrorMessage(resJson.json.message);
             if (resJson.json.message === "Unauthenticated.") {
@@ -106,7 +118,9 @@ function Equipment() {
       headerTextSize="h5"
       frameTitle="Equipment Management"
       userGetter={setUser}
+      loading={loading}
     >
+      {/* {loading && <LinearProgress />} */}
       <Tabs
         value={value}
         onChange={handleChange}

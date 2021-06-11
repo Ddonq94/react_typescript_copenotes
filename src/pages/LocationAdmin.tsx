@@ -6,7 +6,7 @@ import AppFrame from "../components/AppFrame";
 import Typography from "@material-ui/core/Typography";
 import AppTable from "../components/AppTable";
 import { Link, useHistory } from "react-router-dom";
-import { Box, Button, Divider, Paper } from "@material-ui/core";
+import { Box, Button, Divider, LinearProgress, Paper } from "@material-ui/core";
 import usefulServices from "../services/usefulServices";
 import clsx from "clsx";
 import GlobalServices from "../services/GlobalServices";
@@ -23,6 +23,7 @@ function Location({ user, userSetter }: any) {
   const [name, setName] = useState("");
   const [nickName, setNickName] = useState<any>("");
   const [disableName, setDisableName] = useState<boolean>(true);
+  const [loading, setLoading] = useState(false);
 
   let history = useHistory();
 
@@ -42,6 +43,8 @@ function Location({ user, userSetter }: any) {
   useEffect(() => {
     const loadDash = async () => {
       if (user) {
+        setLoading(true);
+
         try {
           const res = await GlobalServices.dashboard({
             Authorization: "Bearer " + user?.api_token,
@@ -49,6 +52,7 @@ function Location({ user, userSetter }: any) {
 
           let resJson = await res;
           console.log(resJson);
+          setLoading(false);
 
           if (res.res === "error") {
             setErrorMessage(resJson.json.message);
@@ -88,6 +92,7 @@ function Location({ user, userSetter }: any) {
       nickname: nickName,
       // locations: JSON.stringify(locations),
     };
+    setLoading(true);
 
     try {
       if (obj.name.length < 3) {
@@ -113,6 +118,8 @@ function Location({ user, userSetter }: any) {
       );
       let resJson = await res;
       console.log(resJson);
+      setLoading(false);
+
       if (res.res === "error") {
         setErrorMessage(resJson.json.message);
         if (resJson.json.message === "Unauthenticated.") {
@@ -176,6 +183,7 @@ function Location({ user, userSetter }: any) {
   return (
     <>
       <div style={styles.top} />
+      {loading && <LinearProgress />}
       <AppCards obj={cardsObj} />
       <div style={styles.bottom} />
 

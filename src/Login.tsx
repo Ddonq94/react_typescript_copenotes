@@ -16,6 +16,7 @@ import { useHistory } from "react-router-dom";
 import clsx from "clsx";
 import GlobalServices from "./services/GlobalServices";
 import { UserContext } from "./context/UserContext";
+import { LinearProgress } from "@material-ui/core";
 // import { Snackbar } from "@material-ui/core";
 // import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 
@@ -88,9 +89,13 @@ export default function SignInSide() {
   const classes = useStyles();
   const [errorMessage, setErrorMessage] = useState("");
 
+  const [loading, setLoading] = useState(false);
+
   let history = useHistory();
 
   const handleLogin = async () => {
+    setLoading(true);
+
     try {
       const res = await GlobalServices.login({
         username,
@@ -98,6 +103,8 @@ export default function SignInSide() {
       });
 
       let resJson = await res;
+      setLoading(false);
+
       console.log(resJson);
 
       if (res.res === "error") {
@@ -141,7 +148,7 @@ export default function SignInSide() {
           className={classes.textCenter}
           align="center"
         >
-          Your Safety Equipment. Maintained!
+          Your Safety Equipment. <i>Maintained!</i>
         </Typography>
       </Grid>
       <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
@@ -156,6 +163,7 @@ export default function SignInSide() {
           </Typography>
           <Typography component="h5" color="primary" variant="h5">
             Welcome, you can Sign In here
+            {loading && <LinearProgress />}
           </Typography>
           <br />
           <Typography color="error">{errorMessage}</Typography>

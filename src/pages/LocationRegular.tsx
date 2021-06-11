@@ -6,12 +6,13 @@ import AppFrame from "../components/AppFrame";
 import Typography from "@material-ui/core/Typography";
 import AppTable from "../components/AppTable";
 import { Link, useHistory } from "react-router-dom";
-import { Box, Button, Divider, Paper } from "@material-ui/core";
+import { Box, Button, Divider, LinearProgress, Paper } from "@material-ui/core";
 import usefulServices from "../services/usefulServices";
 import clsx from "clsx";
 import GlobalServices from "../services/GlobalServices";
 import AppDrawer from "../components/AppDrawer";
 import AppForm from "../components/AppForm";
+import AppEmpty from "../components/AppEmpty";
 
 function Location({ user }: any) {
   // const [user, setUser] = useState<any>();
@@ -32,6 +33,7 @@ function Location({ user }: any) {
 
   const [edit, setEdit] = useState<boolean>(false);
   const [currentId, setCurrentId] = useState<number>();
+  const [loading, setLoading] = useState(false);
 
   let history = useHistory();
 
@@ -127,12 +129,16 @@ function Location({ user }: any) {
   useEffect(() => {
     const loadDash = async () => {
       if (user) {
+        setLoading(true);
+
         try {
           const res = await GlobalServices.generic(null, "GET", "Locations", {
             Authorization: "Bearer " + user?.api_token,
           });
           let resJson = await res;
           console.log(resJson);
+          setLoading(false);
+
           if (res.res === "error") {
             setErrorMessage(resJson.json.message);
             if (resJson.json.message === "Unauthenticated.") {
@@ -309,6 +315,7 @@ function Location({ user }: any) {
               </i>
             </strong>
             details
+            {loading && <LinearProgress />}
           </Typography>
           <Divider />
 
@@ -361,6 +368,7 @@ function Location({ user }: any) {
     } else {
       console.log(id, "handle edit", obj);
     }
+    setLoading(true);
 
     try {
       if (obj.name.length < 3) {
@@ -381,6 +389,8 @@ function Location({ user }: any) {
       });
       let resJson = await res;
       console.log(resJson);
+      setLoading(false);
+
       if (res.res === "error") {
         setErrorMessage(resJson.json.message);
         if (resJson.json.message === "Unauthenticated.") {
@@ -410,6 +420,7 @@ function Location({ user }: any) {
 
     let status = current[0].status == 1 ? 0 : 1;
     console.log(current[0].status, status);
+    setLoading(true);
 
     try {
       const res = await GlobalServices.generic(
@@ -422,6 +433,8 @@ function Location({ user }: any) {
       );
       let resJson = await res;
       console.log(resJson);
+      setLoading(false);
+
       if (res.res === "error") {
         setErrorMessage(resJson.json.message);
         if (resJson.json.message === "Unauthenticated.") {
@@ -476,7 +489,8 @@ function Location({ user }: any) {
       return (
         <Box style={{ margin: "10px" }} width={450}>
           <Typography color="primary" variant="h6">
-            Add New Locations
+            Add New Location
+            {loading && <LinearProgress />}
           </Typography>
           <Divider />
 
@@ -506,6 +520,7 @@ function Location({ user }: any) {
     }
 
     console.log(user);
+    setLoading(true);
 
     // return;
     try {
@@ -524,6 +539,8 @@ function Location({ user }: any) {
       );
       let resJson = await res;
       console.log(resJson);
+      setLoading(false);
+
       if (res.res === "error") {
         setErrorMessage(resJson.json.message);
         if (resJson.json.message === "Unauthenticated.") {
@@ -546,6 +563,7 @@ function Location({ user }: any) {
 
   return (
     <>
+      {loading && <LinearProgress />}
       <Grid
         container
         direction="row"
@@ -554,7 +572,7 @@ function Location({ user }: any) {
         style={styles.top}
       >
         <Typography color="primary" variant="subtitle1">
-          Manage All
+          <b>Manage All</b>
         </Typography>
 
         <Typography color="primary" variant="subtitle1">
@@ -563,7 +581,15 @@ function Location({ user }: any) {
       </Grid>
 
       <div style={styles.table}>
-        <AppTable columns={columns} rows={rows} classSetter={setParentClass} />
+        {rows && rows.length ? (
+          <AppTable
+            columns={columns}
+            rows={rows}
+            classSetter={setParentClass}
+          />
+        ) : (
+          <AppEmpty />
+        )}
       </div>
 
       <Grid container justify="flex-end" style={styles.top}>

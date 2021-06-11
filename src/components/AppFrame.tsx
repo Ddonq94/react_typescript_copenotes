@@ -43,6 +43,7 @@ import Avatar from "@material-ui/core/Avatar";
 import { UserContext } from "../context/UserContext";
 import GlobalServices from "../services/GlobalServices";
 import usefulServices from "../services/usefulServices";
+import { LinearProgress } from "@material-ui/core";
 
 interface Props {
   children: any;
@@ -51,6 +52,7 @@ interface Props {
   headerTextSize?: Variant;
   frameTitle?: string;
   userGetter?: any;
+  loading: boolean;
 }
 
 const drawerWidth = 210;
@@ -187,6 +189,7 @@ function AppFrame({
   headerTextSize,
   frameTitle = "Title",
   userGetter,
+  loading,
 }: Props) {
   const classes = useStyles();
   const theme = useTheme();
@@ -195,6 +198,8 @@ function AppFrame({
   const [user, setUser] = useState<any>();
   const [logoUrl, setLogoUrl] = useState("https://source.unsplash.com/random");
   const [menuObj, setMenuObj] = useState<any>();
+
+  // const [loading, setLoading] = useState(true);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -383,6 +388,7 @@ function AppFrame({
       </Drawer>
       <main className={classes.content}>
         <div className={classes.top} />
+        {loading && <LinearProgress />}
         <Grid container justify={headerTextPosition}>
           <Typography variant={headerTextSize} color="primary" noWrap>
             {headerText}

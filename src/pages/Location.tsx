@@ -17,6 +17,7 @@ import LocationRegular from "./LocationRegular";
 
 function Location() {
   const [user, setUser] = useState<any>();
+  const [loading, setLoading] = useState(false);
 
   let history = useHistory();
 
@@ -31,6 +32,7 @@ function Location() {
       headerTextSize="h5"
       frameTitle="Location Management"
       userGetter={setUser}
+      loading={loading}
     >
       {user ? (
         user.type === "location" ? (

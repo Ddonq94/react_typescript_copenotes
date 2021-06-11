@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AppFrame from "../components/AppFrame";
-import { Box, Tabs, Tab } from "@material-ui/core";
+import { Box, Tabs, Tab, LinearProgress } from "@material-ui/core";
 import UserCompany from "./UserCompany";
 import UserArea from "./UserArea";
 import UserLocation from "./UserLocation";
@@ -52,6 +52,9 @@ function User() {
   const [loc, setLoc] = useState<any>();
 
   const [errorMessage, setErrorMessage] = useState("");
+
+  const [loading, setLoading] = useState(false);
+
   let history = useHistory();
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
@@ -61,12 +64,16 @@ function User() {
   useEffect(() => {
     const loadDash = async () => {
       if (user) {
+        setLoading(true);
+
         try {
           const res = await GlobalServices.generic(null, "GET", "Users", {
             Authorization: "Bearer " + user?.api_token,
           });
           let resJson = await res;
           console.log(resJson);
+          setLoading(false);
+
           if (res.res === "error") {
             setErrorMessage(resJson.json.message);
             if (resJson.json.message === "Unauthenticated.") {
@@ -135,7 +142,9 @@ function User() {
       headerTextSize="h5"
       frameTitle="Users Management"
       userGetter={setUser}
+      loading={loading}
     >
+      {/* {loading && <LinearProgress />} */}
       <Tabs
         value={value}
         onChange={handleChange}

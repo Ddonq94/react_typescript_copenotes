@@ -1,3 +1,4 @@
+import { LinearProgress } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
@@ -16,6 +17,8 @@ function Profile() {
   const [user, setUser] = useState<any>();
   const [disableName, setDisableName] = useState<boolean>(true);
   const [disablePW, setDisablePW] = useState<boolean>(true);
+
+  const [loading, setLoading] = useState(false);
 
   let history = useHistory();
 
@@ -60,6 +63,8 @@ function Profile() {
   };
 
   const handleEdit = async () => {
+    setLoading(true);
+
     try {
       const res = await GlobalServices.generic(
         {
@@ -73,6 +78,8 @@ function Profile() {
       );
       let resJson = await res;
       console.log(resJson);
+      setLoading(false);
+
       if (res.res === "error") {
         setErrorMessage(resJson.json.message);
         if (resJson.json.message === "Unauthenticated.") {
@@ -95,6 +102,8 @@ function Profile() {
   };
 
   const handlePasswordChange = async () => {
+    setLoading(true);
+
     try {
       const res = await GlobalServices.generic(
         {
@@ -108,6 +117,8 @@ function Profile() {
       );
       let resJson = await res;
       console.log(resJson);
+      setLoading(false);
+
       if (res.res === "error") {
         setErrorPWMessage(resJson.json.message);
         if (resJson.json.message === "Unauthenticated.") {
@@ -179,7 +190,9 @@ function Profile() {
       headerTextSize="h4"
       frameTitle="Profile Management"
       userGetter={setUser}
+      loading={loading}
     >
+      {/* {loading && <LinearProgress />} */}
       <Typography
         style={styles.top}
         color="primary"

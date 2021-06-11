@@ -6,11 +6,12 @@ import AppFrame from "../components/AppFrame";
 import Typography from "@material-ui/core/Typography";
 import AppTable from "../components/AppTable";
 import { Link, useHistory } from "react-router-dom";
-import { Box, Button, Divider, Paper } from "@material-ui/core";
+import { Box, Button, Divider, LinearProgress, Paper } from "@material-ui/core";
 import clsx from "clsx";
 import AppDrawer from "../components/AppDrawer";
 import usefulServices from "../services/usefulServices";
 import GlobalServices from "../services/GlobalServices";
+import AppEmpty from "../components/AppEmpty";
 
 function TransactionFE({ parentRows, user }: any) {
   const [parentClass, setParentClass] = useState<any>();
@@ -21,6 +22,8 @@ function TransactionFE({ parentRows, user }: any) {
   const [rows, setRows] = useState<any>();
 
   const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
   let history = useHistory();
 
   const styles = {
@@ -193,6 +196,7 @@ function TransactionFE({ parentRows, user }: any) {
 
     let status = stat ? 1 : 2;
     console.log(status);
+    setLoading(true);
 
     try {
       const res = await GlobalServices.generic(
@@ -205,6 +209,8 @@ function TransactionFE({ parentRows, user }: any) {
       );
       let resJson = await res;
       console.log(resJson);
+      setLoading(false);
+
       if (res.res === "error") {
         setErrorMessage(resJson.json.message);
         if (resJson.json.message === "Unauthenticated.") {
@@ -225,6 +231,7 @@ function TransactionFE({ parentRows, user }: any) {
 
   return (
     <div>
+      {loading && <LinearProgress />}
       <Grid
         container
         direction="row"
@@ -242,7 +249,15 @@ function TransactionFE({ parentRows, user }: any) {
       </Grid>
 
       <div style={styles.table}>
-        <AppTable columns={columns} rows={rows} classSetter={setParentClass} />
+        {rows && rows.length ? (
+          <AppTable
+            columns={columns}
+            rows={rows}
+            classSetter={setParentClass}
+          />
+        ) : (
+          <AppEmpty />
+        )}
       </div>
 
       {/* <Grid container justify="flex-end" style={styles.top}>

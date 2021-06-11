@@ -17,6 +17,8 @@ import AreaAdmin from "./AreaAdmin";
 
 function Area() {
   const [user, setUser] = useState<any>();
+  const [loading, setLoading] = useState(false);
+
   let history = useHistory();
 
   useEffect(() => {
@@ -45,6 +47,7 @@ function Area() {
       headerTextSize="h5"
       frameTitle="Area Management"
       userGetter={setUser}
+      loading={loading}
     >
       {user ? (
         user.type === "company" ? (

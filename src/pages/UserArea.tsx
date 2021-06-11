@@ -6,13 +6,14 @@ import AppFrame from "../components/AppFrame";
 import Typography from "@material-ui/core/Typography";
 import AppTable from "../components/AppTable";
 import { Link, useHistory } from "react-router-dom";
-import { Box, Button, Divider, Paper } from "@material-ui/core";
+import { Box, Button, Divider, LinearProgress, Paper } from "@material-ui/core";
 
 import clsx from "clsx";
 import AppDrawer from "../components/AppDrawer";
 import usefulServices from "../services/usefulServices";
 import AppForm from "../components/AppForm";
 import GlobalServices from "../services/GlobalServices";
+import AppEmpty from "../components/AppEmpty";
 
 function UserArea({ parentRows, user }: any) {
   const [parentClass, setParentClass] = useState<any>();
@@ -37,6 +38,8 @@ function UserArea({ parentRows, user }: any) {
   const [rows, setRows] = useState<any>();
 
   const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
   let history = useHistory();
 
   const styles = {
@@ -120,12 +123,16 @@ function UserArea({ parentRows, user }: any) {
   useEffect(() => {
     const loads = async () => {
       if (user) {
+        setLoading(true);
+
         try {
           const res = await GlobalServices.generic(null, "GET", "Areas", {
             Authorization: "Bearer " + user?.api_token,
           });
           let resJson = await res;
           console.log(resJson);
+          setLoading(false);
+
           if (res.res === "error") {
             if (resJson.json.message === "Unauthenticated.") {
               history.push(`/login`);
@@ -333,6 +340,7 @@ function UserArea({ parentRows, user }: any) {
               </i>
             </strong>
             details
+            {loading && <LinearProgress />}
           </Typography>
           <Divider />
 
@@ -391,6 +399,8 @@ function UserArea({ parentRows, user }: any) {
       console.log(id, "handle edit", obj);
     }
 
+    setLoading(true);
+
     try {
       if (obj.password !== obj.cpassword) {
         return;
@@ -426,6 +436,8 @@ function UserArea({ parentRows, user }: any) {
       });
       let resJson = await res;
       console.log(resJson);
+      setLoading(false);
+
       if (res.res === "error") {
         setErrorMessage(resJson.json.message);
         if (resJson.json.message === "Unauthenticated.") {
@@ -455,6 +467,7 @@ function UserArea({ parentRows, user }: any) {
 
     let status = current[0].status == 1 ? 0 : 1;
     console.log(current[0].status, status);
+    setLoading(true);
 
     try {
       const res = await GlobalServices.generic(
@@ -467,6 +480,8 @@ function UserArea({ parentRows, user }: any) {
       );
       let resJson = await res;
       console.log(resJson);
+      setLoading(false);
+
       if (res.res === "error") {
         setErrorMessage(resJson.json.message);
         if (resJson.json.message === "Unauthenticated.") {
@@ -559,6 +574,7 @@ function UserArea({ parentRows, user }: any) {
         <Box style={{ margin: "10px" }} width={450}>
           <Typography color="primary" variant="h6">
             Add New User
+            {loading && <LinearProgress />}
           </Typography>
           <Divider />
 
@@ -594,6 +610,7 @@ function UserArea({ parentRows, user }: any) {
     }
 
     console.log(user);
+    setLoading(true);
 
     // return;
     try {
@@ -616,6 +633,8 @@ function UserArea({ parentRows, user }: any) {
       );
       let resJson = await res;
       console.log(resJson);
+      setLoading(false);
+
       if (res.res === "error") {
         setErrorMessage(resJson.json.message);
         if (resJson.json.message === "Unauthenticated.") {
@@ -638,6 +657,7 @@ function UserArea({ parentRows, user }: any) {
 
   return (
     <div>
+      {loading && <LinearProgress />}
       <Grid
         container
         direction="row"
@@ -654,7 +674,15 @@ function UserArea({ parentRows, user }: any) {
       </Grid>
 
       <div style={styles.table}>
-        <AppTable columns={columns} rows={rows} classSetter={setParentClass} />
+        {rows && rows.length ? (
+          <AppTable
+            columns={columns}
+            rows={rows}
+            classSetter={setParentClass}
+          />
+        ) : (
+          <AppEmpty />
+        )}
       </div>
 
       <Grid container justify="flex-end" style={styles.top}>

@@ -5,13 +5,14 @@ import AddIcon from "@material-ui/icons/Add";
 import AppFrame from "../components/AppFrame";
 import Typography from "@material-ui/core/Typography";
 import AppTable from "../components/AppTable";
-import { Box, Button, Divider, Paper } from "@material-ui/core";
+import { Box, Button, Divider, LinearProgress, Paper } from "@material-ui/core";
 import clsx from "clsx";
 import usefulServices from "../services/usefulServices";
 import GlobalServices from "../services/GlobalServices";
 import { useHistory } from "react-router-dom";
 import AppDrawer from "../components/AppDrawer";
 import AppForm from "../components/AppForm";
+import AppEmpty from "../components/AppEmpty";
 
 function AreaRegular({ user }: any) {
   // const [user, setUser] = useState<any>();
@@ -35,6 +36,8 @@ function AreaRegular({ user }: any) {
   const [edit, setEdit] = useState<boolean>(false);
   const [currentId, setCurrentId] = useState<number>();
 
+  const [loading, setLoading] = useState(false);
+
   let history = useHistory();
 
   const styles = {
@@ -48,6 +51,10 @@ function AreaRegular({ user }: any) {
       marginTop: "20px",
       marginBottom: "40px",
     },
+  };
+
+  const csvRows = () => {
+    usefulServices.csv(rows, "test", "csv");
   };
 
   useEffect(() => {
@@ -130,6 +137,7 @@ function AreaRegular({ user }: any) {
           history.push(`/dashboard`);
           return;
         }
+        setLoading(true);
 
         try {
           const res = await GlobalServices.generic(null, "GET", "Areas", {
@@ -137,6 +145,8 @@ function AreaRegular({ user }: any) {
           });
           let resJson = await res;
           console.log(resJson);
+          setLoading(false);
+
           if (res.res === "error") {
             setErrorMessage(resJson.json.message);
             if (resJson.json.message === "Unauthenticated.") {
@@ -190,12 +200,16 @@ function AreaRegular({ user }: any) {
 
     const loadLocs = async () => {
       if (user) {
+        setLoading(true);
+
         try {
           const res = await GlobalServices.generic(null, "GET", "Locations", {
             Authorization: "Bearer " + user?.api_token,
           });
           let resJson = await res;
           console.log(resJson);
+          setLoading(false);
+
           if (res.res === "error") {
             if (resJson.json.message === "Unauthenticated.") {
               history.push(`/login`);
@@ -265,6 +279,8 @@ function AreaRegular({ user }: any) {
       console.log(id, "handle edit", obj);
     }
 
+    setLoading(true);
+
     try {
       if (obj.name.length < 3) {
         delete obj.name;
@@ -287,6 +303,8 @@ function AreaRegular({ user }: any) {
       });
       let resJson = await res;
       console.log(resJson);
+      setLoading(false);
+
       if (res.res === "error") {
         setErrorMessage(resJson.json.message);
         if (resJson.json.message === "Unauthenticated.") {
@@ -320,6 +338,7 @@ function AreaRegular({ user }: any) {
 
     let status = current[0].status == 1 ? 0 : 1;
     console.log(current[0].status, status);
+    setLoading(true);
 
     try {
       const res = await GlobalServices.generic(
@@ -332,6 +351,8 @@ function AreaRegular({ user }: any) {
       );
       let resJson = await res;
       console.log(resJson);
+      setLoading(false);
+
       if (res.res === "error") {
         setErrorMessage(resJson.json.message);
         if (resJson.json.message === "Unauthenticated.") {
@@ -421,6 +442,7 @@ function AreaRegular({ user }: any) {
               </i>
             </strong>
             details
+            {loading && <LinearProgress />}
           </Typography>
           <Divider />
 
@@ -487,6 +509,7 @@ function AreaRegular({ user }: any) {
         <Box style={{ margin: "10px" }} width={450}>
           <Typography color="primary" variant="h6">
             Add New Area
+            {loading && <LinearProgress />}
           </Typography>
           <Divider />
 
@@ -520,6 +543,7 @@ function AreaRegular({ user }: any) {
     }
 
     console.log(user);
+    setLoading(true);
 
     // return;
     try {
@@ -539,6 +563,8 @@ function AreaRegular({ user }: any) {
       );
       let resJson = await res;
       console.log(resJson);
+      setLoading(false);
+
       if (res.res === "error") {
         setErrorMessage(resJson.json.message);
         if (resJson.json.message === "Unauthenticated.") {
@@ -647,6 +673,7 @@ function AreaRegular({ user }: any) {
 
   return (
     <>
+      {loading && <LinearProgress />}
       <Grid
         container
         direction="row"
@@ -655,8 +682,45 @@ function AreaRegular({ user }: any) {
         style={styles.top}
       >
         <Typography color="primary" variant="subtitle1">
-          Manage All
+          <b>Manage All</b>
         </Typography>
+
+        <div>
+          {rows && <span style={{ color: "#3F51B5" }}>Export Data</span>}
+          {`  `}
+          {rows && (
+            <Button
+              variant="outlined"
+              className={clsx(parentClass.textGreen, parentClass.outlinedGreen)}
+              size="small"
+              onClick={() => usefulServices.csv(rows, "csvDowload", "csv")}
+            >
+              CSV
+            </Button>
+          )}
+          {` `}
+          {rows && (
+            <Button
+              variant="outlined"
+              color="primary"
+              size="small"
+              onClick={() => usefulServices.csv(rows, "xlsDownload", "xls")}
+            >
+              Xls
+            </Button>
+          )}
+          {` `}
+          {rows && (
+            <Button
+              variant="outlined"
+              color="secondary"
+              size="small"
+              onClick={csvRows}
+            >
+              PDF
+            </Button>
+          )}
+        </div>
 
         <Typography color="primary" variant="subtitle1">
           {rows ? `Total: ${rows.length}` : ""}
@@ -664,7 +728,15 @@ function AreaRegular({ user }: any) {
       </Grid>
 
       <div style={styles.table}>
-        <AppTable columns={columns} rows={rows} classSetter={setParentClass} />
+        {rows && rows.length ? (
+          <AppTable
+            columns={columns}
+            rows={rows}
+            classSetter={setParentClass}
+          />
+        ) : (
+          <AppEmpty />
+        )}
       </div>
 
       <Grid container justify="flex-end" style={styles.top}>

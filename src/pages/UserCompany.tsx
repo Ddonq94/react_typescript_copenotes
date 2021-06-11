@@ -5,13 +5,14 @@ import AddIcon from "@material-ui/icons/Add";
 import AppFrame from "../components/AppFrame";
 import Typography from "@material-ui/core/Typography";
 import AppTable from "../components/AppTable";
-import { Box, Button, Divider, Paper } from "@material-ui/core";
+import { Box, Button, Divider, LinearProgress, Paper } from "@material-ui/core";
 import clsx from "clsx";
 import { useHistory } from "react-router-dom";
 import AppDrawer from "../components/AppDrawer";
 import usefulServices from "../services/usefulServices";
 import AppForm from "../components/AppForm";
 import GlobalServices from "../services/GlobalServices";
+import AppEmpty from "../components/AppEmpty";
 
 function UserCompany({ parentRows, user }: any) {
   const [parentClass, setParentClass] = useState<any>();
@@ -34,6 +35,8 @@ function UserCompany({ parentRows, user }: any) {
   const [rows, setRows] = useState<any>();
 
   const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
   let history = useHistory();
 
   const styles = {
@@ -280,6 +283,7 @@ function UserCompany({ parentRows, user }: any) {
               </i>
             </strong>
             details
+            {loading && <LinearProgress />}
           </Typography>
           <Divider />
 
@@ -331,6 +335,7 @@ function UserCompany({ parentRows, user }: any) {
     } else {
       console.log(id, "handle edit", obj);
     }
+    setLoading(true);
 
     try {
       if (obj.password !== obj.cpassword) {
@@ -363,6 +368,8 @@ function UserCompany({ parentRows, user }: any) {
       });
       let resJson = await res;
       console.log(resJson);
+      setLoading(false);
+
       if (res.res === "error") {
         setErrorMessage(resJson.json.message);
         if (resJson.json.message === "Unauthenticated.") {
@@ -392,6 +399,7 @@ function UserCompany({ parentRows, user }: any) {
 
     let status = current[0].status == 1 ? 0 : 1;
     console.log(current[0].status, status);
+    setLoading(true);
 
     try {
       const res = await GlobalServices.generic(
@@ -404,6 +412,8 @@ function UserCompany({ parentRows, user }: any) {
       );
       let resJson = await res;
       console.log(resJson);
+      setLoading(false);
+
       if (res.res === "error") {
         setErrorMessage(resJson.json.message);
         if (resJson.json.message === "Unauthenticated.") {
@@ -483,6 +493,7 @@ function UserCompany({ parentRows, user }: any) {
         <Box style={{ margin: "10px" }} width={450}>
           <Typography color="primary" variant="h6">
             Add New User
+            {loading && <LinearProgress />}
           </Typography>
           <Divider />
 
@@ -517,6 +528,7 @@ function UserCompany({ parentRows, user }: any) {
     }
 
     console.log(user);
+    setLoading(true);
 
     // return;
     try {
@@ -539,6 +551,8 @@ function UserCompany({ parentRows, user }: any) {
       );
       let resJson = await res;
       console.log(resJson);
+      setLoading(false);
+
       if (res.res === "error") {
         setErrorMessage(resJson.json.message);
         if (resJson.json.message === "Unauthenticated.") {
@@ -561,6 +575,7 @@ function UserCompany({ parentRows, user }: any) {
 
   return (
     <div>
+      {loading && <LinearProgress />}
       <Grid
         container
         direction="row"
@@ -577,7 +592,15 @@ function UserCompany({ parentRows, user }: any) {
       </Grid>
 
       <div style={styles.table}>
-        <AppTable columns={columns} rows={rows} classSetter={setParentClass} />
+        {rows && rows.length ? (
+          <AppTable
+            columns={columns}
+            rows={rows}
+            classSetter={setParentClass}
+          />
+        ) : (
+          <AppEmpty />
+        )}
       </div>
 
       <Grid container justify="flex-end" style={styles.top}>

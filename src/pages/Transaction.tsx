@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import AppFrame from "../components/AppFrame";
-import { AppBar, Box, Tabs, Tab, Typography } from "@material-ui/core";
+import {
+  AppBar,
+  Box,
+  Tabs,
+  Tab,
+  Typography,
+  LinearProgress,
+} from "@material-ui/core";
 import TransactionFE from "./TransactionFE";
 import TransactionFT from "./TransactionFT";
 import usefulServices from "../services/usefulServices";
@@ -47,6 +54,7 @@ function Transaction() {
   const [user, setUser] = useState<any>();
   const [fe, setFe] = useState<any>();
   const [ft, setFt] = useState<any>();
+  const [loading, setLoading] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState("");
   let history = useHistory();
@@ -58,6 +66,8 @@ function Transaction() {
   useEffect(() => {
     const loadDash = async () => {
       if (user) {
+        setLoading(true);
+
         try {
           const res = await GlobalServices.generic(
             null,
@@ -69,6 +79,8 @@ function Transaction() {
           );
           let resJson = await res;
           console.log(resJson);
+          setLoading(false);
+
           if (res.res === "error") {
             setErrorMessage(resJson.json.message);
             if (resJson.json.message === "Unauthenticated.") {
@@ -124,7 +136,9 @@ function Transaction() {
       headerTextSize="h5"
       frameTitle="Transaction Management"
       userGetter={setUser}
+      loading={loading}
     >
+      {/* {loading && <LinearProgress />} */}
       <Tabs
         value={value}
         onChange={handleChange}

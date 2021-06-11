@@ -26,6 +26,9 @@ const useStyles = makeStyles((theme: Theme) =>
     whiteText: {
       color: "#FFFFFF",
     },
+    left: {
+      borderLeft: "1px solid white",
+    },
   })
 );
 
@@ -62,7 +65,10 @@ function AppCard({ co, ind }: Props) {
           </Grid>
 
           {co.middleText.length > 1 && (
-            <Grid xs={co.middleText.length > 1 ? 6 : 12}>
+            <Grid
+              xs={co.middleText.length > 1 ? 6 : 12}
+              className={classes.left}
+            >
               <Typography
                 align="center"
                 className={classes.whiteText}
