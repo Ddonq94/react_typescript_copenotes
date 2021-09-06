@@ -5,6 +5,7 @@ import { useHistory } from "react-router-dom";
 import AppForm from "../components/AppForm";
 import AppFrame from "../components/AppFrame";
 import GlobalServices from "../services/GlobalServices";
+import { Alert } from "@material-ui/lab";
 
 function Profile() {
   const [fields, setFields] = useState<any>();
@@ -19,6 +20,10 @@ function Profile() {
   const [disablePW, setDisablePW] = useState<boolean>(true);
 
   const [loading, setLoading] = useState(false);
+
+  const [handle, setHandle] = useState(false);
+  const [type, setType] = useState<any>();
+  const [msg, setMsg] = useState("");
 
   let history = useHistory();
 
@@ -86,6 +91,9 @@ function Profile() {
           history.push(`/login`);
           return;
         }
+        setHandle(true);
+        setType("error");
+        setMsg(resJson.json.message);
       }
       if (res.res === "success") {
         let oldUser = JSON.parse(sessionStorage.getItem("user") || "");
@@ -94,11 +102,19 @@ function Profile() {
 
         sessionStorage.setItem("user", JSON.stringify(newUser));
         setErrorMessage("");
+        setHandle(true);
+        setType("success");
+        setMsg("Operation was Successful");
       }
     } catch (err) {
       console.log(err);
+      setHandle(true);
+      setType("error");
+      setMsg(err || "Something Broke, Please try again or contact Admin");
+      console.log(err);
       setErrorMessage("Something Broke, Please try again or contact Admin");
     }
+    setTimeout(() => window.location.reload(), 3000);
   };
 
   const handlePasswordChange = async () => {
@@ -125,6 +141,9 @@ function Profile() {
           history.push(`/login`);
           return;
         }
+        setHandle(true);
+        setType("error");
+        setMsg(resJson.json.message);
       }
       if (res.res === "success") {
         let oldUser = JSON.parse(sessionStorage.getItem("user") || "");
@@ -135,11 +154,19 @@ function Profile() {
         setUser(newUser.data);
 
         setErrorPWMessage("");
+        setHandle(true);
+        setType("success");
+        setMsg("Operation was Successful");
       }
     } catch (err) {
       console.log(err);
+      setHandle(true);
+      setType("error");
+      setMsg(err || "Something Broke, Please try again or contact Admin");
+      console.log(err);
       setErrorPWMessage("Something Broke, Please try again or contact Admin");
     }
+    setTimeout(() => window.location.reload(), 3000);
   };
 
   useEffect(() => {
@@ -192,7 +219,19 @@ function Profile() {
       userGetter={setUser}
       loading={loading}
     >
-      {/* {loading && <LinearProgress />} */}
+      {handle && (
+        <Alert
+          onClose={() => {
+            window.location.reload();
+          }}
+          severity={type}
+          style={styles.bottom}
+        >
+          {msg}
+        </Alert>
+      )}
+      {loading && <LinearProgress />}
+      <br />
       <Typography
         style={styles.top}
         color="primary"
@@ -202,9 +241,9 @@ function Profile() {
         Basic Information
       </Typography>
 
-      <Typography align="center" color="error">
+      {/* <Typography align="center" color="error">
         {errorMessage}
-      </Typography>
+      </Typography> */}
       {user && (
         <AppForm
           fields={fields}

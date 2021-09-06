@@ -17,6 +17,7 @@ import AppForm from "./components/AppForm";
 import { Link, useHistory } from "react-router-dom";
 import GlobalServices from "./services/GlobalServices";
 import { LinearProgress } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -41,7 +42,7 @@ const useStyles = makeStyles((theme: Theme) =>
       marginTop: 20,
     },
     pos: {
-      marginBottom: 30,
+      marginBottom: "30px",
     },
     large: {
       width: theme.spacing(10),
@@ -62,6 +63,10 @@ export default function Signup() {
   const [errorMessage, setErrorMessage] = useState("");
 
   const [loading, setLoading] = useState(false);
+
+  const [handle, setHandle] = useState(false);
+  const [type, setType] = useState<any>();
+  const [msg, setMsg] = useState("");
 
   let history = useHistory();
 
@@ -159,6 +164,9 @@ export default function Signup() {
         setErrorMessage(
           "Something Went Wrong, Please try again or contact Admin"
         );
+        setHandle(true);
+        setType("error");
+        setMsg(resJson.json.message);
       }
 
       if (res.res === "success") {
@@ -191,6 +199,10 @@ export default function Signup() {
       }
     } catch (err) {
       console.log(err);
+      setHandle(true);
+      setType("error");
+      setMsg(err || "Something Broke, Please try again or contact Admin");
+      console.log(err);
       setErrorMessage("Something Broke, Please try again or contact Admin");
     }
   };
@@ -217,14 +229,25 @@ export default function Signup() {
               color="primary"
             >
               Welcome, Create Your Account Here
+              {handle && (
+                <Alert
+                  onClose={() => {
+                    window.location.reload();
+                  }}
+                  severity={type}
+                  className={classes.pos}
+                >
+                  {msg}
+                </Alert>
+              )}
               {loading && <LinearProgress />}
             </Typography>
           </Grid>
         </Grid>
 
-        <Typography align="center" color="error">
+        {/* <Typography align="center" color="error">
           {errorMessage}
-        </Typography>
+        </Typography> */}
 
         <AppForm
           fields={fields}

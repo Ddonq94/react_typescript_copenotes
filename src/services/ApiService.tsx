@@ -1,8 +1,8 @@
 export default class ApiService {
   protected static getApiUrl(): string {
     // return "http://127.0.0.1:8001/api";
-    return "http://127.0.0.1:8000/api";
-    // return "http://pkbsolutions.com/fsms/public/api";
+    // return "http://127.0.0.1:8000/api";
+    return "https://pkbsolutions.com/fsms/public/api";
   }
 
   /**
@@ -45,6 +45,10 @@ export default class ApiService {
     // try {
     //   responseData = await response;
     // } catch (err) {
+    // console.log(err);
+    // setHandle(true);
+    // setType("error");
+    // setMsg(err || "Something Broke, Please try again or contact Admin");
     //   console.log(err);
 
     //   responseData = null;

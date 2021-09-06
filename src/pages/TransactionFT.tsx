@@ -6,12 +6,21 @@ import AppFrame from "../components/AppFrame";
 import Typography from "@material-ui/core/Typography";
 import AppTable from "../components/AppTable";
 import { Link, useHistory } from "react-router-dom";
-import { Box, Button, Divider, LinearProgress, Paper } from "@material-ui/core";
+import {
+  Box,
+  Button,
+  Divider,
+  LinearProgress,
+  Paper,
+  TextField,
+} from "@material-ui/core";
 import clsx from "clsx";
 import GlobalServices from "../services/GlobalServices";
 import AppDrawer from "../components/AppDrawer";
 import usefulServices from "../services/usefulServices";
 import AppEmpty from "../components/AppEmpty";
+import { Refresh } from "@material-ui/icons";
+import { Alert } from "@material-ui/lab";
 
 function TransactionFT({ parentRows, user }: any) {
   const [parentClass, setParentClass] = useState<any>();
@@ -24,6 +33,10 @@ function TransactionFT({ parentRows, user }: any) {
   const [errorMessage, setErrorMessage] = useState("");
 
   const [loading, setLoading] = useState(false);
+
+  const [handle, setHandle] = useState(false);
+  const [type, setType] = useState<any>();
+  const [msg, setMsg] = useState("");
 
   let history = useHistory();
 
@@ -106,12 +119,20 @@ function TransactionFT({ parentRows, user }: any) {
       let prs: any[] = parentRows;
       let newRows = parentRows.map((pr: any) => {
         console.log(pr);
+        let stat = "New";
+        if (pr.status == 1) {
+          stat = "Approved";
+        } else if (pr.status == 2) {
+          stat = "Disapproved";
+        }
+
         return {
           timestamp: pr.created_at || "N/A",
           operator: pr?.user[0]?.name || "N/A",
           equipmentName: pr?.equipment[0]?.name || "N/A",
           nextMaint: pr?.next_maint || "N/A",
-          status: pr.status,
+          status: stat,
+          recordedData: pr.recorded_data,
           actions: pr.id,
         };
       });
@@ -131,6 +152,12 @@ function TransactionFT({ parentRows, user }: any) {
       console.log(current, nodesObj);
 
       let content = Object.keys(current[0]).map((a: any, ind) => {
+        let trans;
+
+        if (a === "recordedData") {
+          trans = <>stu</>;
+        }
+
         const buttons = (
           <>
             <Button
@@ -167,12 +194,12 @@ function TransactionFT({ parentRows, user }: any) {
           >
             {buttons}
           </Paper>
+        ) : a === "recordedData" ? (
+          trans
         ) : (
           <Paper elevation={10} style={{ margin: "10px", padding: "10px" }}>
             <b>{`${usefulServices.capitalizeFirstLetter(a)}`}</b>
-            {a === "status"
-              ? `: ${current[0][a] == 1 ? "Active" : "Inactive"}`
-              : `: ${current[0][a]}`}
+            {`: ${current[0][a]}`}
           </Paper>
         );
       });
@@ -218,21 +245,72 @@ function TransactionFT({ parentRows, user }: any) {
           history.push(`/login`);
           return;
         }
+        setHandle(true);
+        setType("error");
+        setMsg(resJson.json.message);
       }
       if (res.res === "success") {
+        setHandle(true);
+        setType("success");
+        setMsg("Operation was Successful");
         setErrorMessage("");
       }
     } catch (err) {
       console.log(err);
+      setHandle(true);
+      setType("error");
+      setMsg(err || "Something Broke, Please try again or contact Admin");
+      console.log(err);
       setErrorMessage("Something Broke, Please try again or contact Admin");
     }
+    setTimeout(() => window.location.reload(), 3000);
 
+    // window.location.reload();
+  };
+
+  const refresh = (ev: any) => {
     window.location.reload();
+  };
+
+  const filterRows = (ev: any) => {
+    let val = ev.target.value;
+    let oldRows = rows;
+    let newRows = oldRows.filter((i: any) => {
+      let keys = Object.keys(i);
+      console.log(keys);
+
+      let filty = keys.filter((k: any) => {
+        return (
+          i[k].toString().toLowerCase().indexOf(val.toString().toLowerCase()) >
+          -1
+        );
+      });
+      console.log(filty);
+
+      return filty.length;
+    });
+
+    console.log(newRows);
+
+    setRows(newRows);
   };
 
   return (
     <div>
+      {handle && (
+        <Alert
+          onClose={() => {
+            window.location.reload();
+          }}
+          severity={type}
+          style={styles.bottom}
+        >
+          {msg}
+        </Alert>
+      )}
       {loading && <LinearProgress />}
+      <div style={styles.top}></div>
+
       <Grid
         container
         direction="row"
@@ -240,8 +318,65 @@ function TransactionFT({ parentRows, user }: any) {
         alignItems="center"
       >
         <Typography color="primary" variant="subtitle1">
-          Manage Fire Extinguishers
+          <b> Fire Truck Transactions</b>
         </Typography>
+
+        <div>
+          {rows && (
+            <>
+              <TextField
+                id="outlined-search"
+                label="Filter"
+                type="search"
+                variant="outlined"
+                size="small"
+                onChange={filterRows}
+              />
+              <Refresh
+                onClick={refresh}
+                style={{ color: "#3F51B5", marginTop: "9px" }}
+              />
+            </>
+          )}
+        </div>
+
+        <div>
+          {rows && <span style={{ color: "#3F51B5" }}>Export Data</span>}
+          {`  `}
+          {rows && parentClass && (
+            <Button
+              variant="outlined"
+              className={clsx(parentClass.textGreen, parentClass.outlinedGreen)}
+              size="small"
+              onClick={() => usefulServices.csv(rows, "csvDowload", "csv")}
+            >
+              CSV
+            </Button>
+          )}
+          {` `}
+          {rows && (
+            <Button
+              variant="outlined"
+              color="primary"
+              size="small"
+              onClick={() => usefulServices.csv(rows, "xlsDownload", "xls")}
+            >
+              Xls
+            </Button>
+          )}
+          {` `}
+          {rows && (
+            <Button
+              variant="outlined"
+              color="secondary"
+              size="small"
+              onClick={() => usefulServices.pdf(rows, "pdfDownload", "pdf")}
+              // disabled={true}
+            >
+              PDF
+            </Button>
+          )}
+        </div>
 
         <Typography color="primary" variant="subtitle1">
           {rows ? `Total: ${rows.length}` : ""}

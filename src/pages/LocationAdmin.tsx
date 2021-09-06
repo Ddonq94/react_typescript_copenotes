@@ -14,6 +14,8 @@ import AppDrawer from "../components/AppDrawer";
 import AppForm from "../components/AppForm";
 import AppCards from "../components/AppCards";
 
+import { Alert } from "@material-ui/lab";
+
 function Location({ user, userSetter }: any) {
   const [cardsObj, setCardsObj] = useState([]);
   const [fields, setFields] = useState<any>();
@@ -24,6 +26,10 @@ function Location({ user, userSetter }: any) {
   const [nickName, setNickName] = useState<any>("");
   const [disableName, setDisableName] = useState<boolean>(true);
   const [loading, setLoading] = useState(false);
+
+  const [handle, setHandle] = useState(false);
+  const [type, setType] = useState<any>();
+  const [msg, setMsg] = useState("");
 
   let history = useHistory();
 
@@ -60,6 +66,9 @@ function Location({ user, userSetter }: any) {
               history.push(`/login`);
               return;
             }
+            setHandle(true);
+            setType("error");
+            setMsg(resJson.json.message);
           }
 
           if (res.res === "success") {
@@ -68,6 +77,10 @@ function Location({ user, userSetter }: any) {
             setErrorMessage("");
           }
         } catch (err) {
+          console.log(err);
+          setHandle(true);
+          setType("error");
+          setMsg(err || "Something Broke, Please try again or contact Admin");
           console.log(err);
           setErrorMessage("Something Broke, Please try again or contact Admin");
         }
@@ -126,6 +139,9 @@ function Location({ user, userSetter }: any) {
           history.push(`/login`);
           return;
         }
+        setHandle(true);
+        setType("error");
+        setMsg(resJson.json.message);
       }
       if (res.res === "success") {
         let oldUser = JSON.parse(sessionStorage.getItem("user") || "");
@@ -139,12 +155,21 @@ function Location({ user, userSetter }: any) {
 
         userSetter(newUser.data);
 
+        setHandle(true);
+        setType("success");
+        setMsg("Operation was Successful");
+
         setErrorMessage("");
       }
     } catch (err) {
       console.log(err);
+      setHandle(true);
+      setType("error");
+      setMsg(err || "Something Broke, Please try again or contact Admin");
+      console.log(err);
       setErrorMessage("Something Broke, Please try again or contact Admin");
     }
+    setTimeout(() => window.location.reload(), 3000);
   };
 
   useEffect(() => {
@@ -183,6 +208,17 @@ function Location({ user, userSetter }: any) {
   return (
     <>
       <div style={styles.top} />
+      {handle && (
+        <Alert
+          onClose={() => {
+            window.location.reload();
+          }}
+          severity={type}
+          style={styles.bottom}
+        >
+          {msg}
+        </Alert>
+      )}
       {loading && <LinearProgress />}
       <AppCards obj={cardsObj} />
       <div style={styles.bottom} />

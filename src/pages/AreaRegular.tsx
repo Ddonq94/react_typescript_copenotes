@@ -5,7 +5,14 @@ import AddIcon from "@material-ui/icons/Add";
 import AppFrame from "../components/AppFrame";
 import Typography from "@material-ui/core/Typography";
 import AppTable from "../components/AppTable";
-import { Box, Button, Divider, LinearProgress, Paper } from "@material-ui/core";
+import {
+  Box,
+  Button,
+  Divider,
+  LinearProgress,
+  Paper,
+  TextField,
+} from "@material-ui/core";
 import clsx from "clsx";
 import usefulServices from "../services/usefulServices";
 import GlobalServices from "../services/GlobalServices";
@@ -13,6 +20,8 @@ import { useHistory } from "react-router-dom";
 import AppDrawer from "../components/AppDrawer";
 import AppForm from "../components/AppForm";
 import AppEmpty from "../components/AppEmpty";
+import { Refresh } from "@material-ui/icons";
+import { Alert } from "@material-ui/lab";
 
 function AreaRegular({ user }: any) {
   // const [user, setUser] = useState<any>();
@@ -20,6 +29,7 @@ function AreaRegular({ user }: any) {
   const [parentClass, setParentClass] = useState<any>();
   const [columns, setColumns] = useState<any>();
   const [rows, setRows] = useState<any>();
+  const [rows2, setRows2] = useState<any>();
   const [areasObj, setAreasObj] = useState<any>();
 
   const [errorMessage, setErrorMessage] = useState("");
@@ -37,6 +47,10 @@ function AreaRegular({ user }: any) {
   const [currentId, setCurrentId] = useState<number>();
 
   const [loading, setLoading] = useState(false);
+
+  const [handle, setHandle] = useState(false);
+  const [type, setType] = useState<any>();
+  const [msg, setMsg] = useState("");
 
   let history = useHistory();
 
@@ -74,7 +88,7 @@ function AreaRegular({ user }: any) {
           label: "Actions",
           minWidth: 85,
           format: (value: any) => {
-            console.log(value);
+            // //console.log(value);
 
             return (
               <div>
@@ -144,7 +158,7 @@ function AreaRegular({ user }: any) {
             Authorization: "Bearer " + user?.api_token,
           });
           let resJson = await res;
-          console.log(resJson);
+          // //console.log(resJson);
           setLoading(false);
 
           if (res.res === "error") {
@@ -153,17 +167,20 @@ function AreaRegular({ user }: any) {
               history.push(`/login`);
               return;
             }
+            setHandle(true);
+            setType("error");
+            setMsg(resJson.json.message);
           }
           if (res.res === "success") {
-            console.log(res);
+            //console.log(res);
 
             areas = res.json.data.areas;
 
             setAreasObj(areas);
 
             let areasEquipmentCount = res.json.data.areasEquipmentCount;
-            console.log(areas);
-            console.log(areasEquipmentCount);
+            //console.log(areas);
+            //console.log(areasEquipmentCount);
 
             let eqCount = areasEquipmentCount.map((aec: any) => {
               let total = 0;
@@ -174,7 +191,7 @@ function AreaRegular({ user }: any) {
               return total;
             });
 
-            console.log(eqCount);
+            //console.log(eqCount);
 
             areas = areas.map((area: any, ind: number) => {
               return {
@@ -182,16 +199,21 @@ function AreaRegular({ user }: any) {
                 users: area.users.length,
                 equipments: eqCount[ind],
                 locations: JSON.parse(area.locations).length,
-                status: area.status,
+                status: area.status == 1 ? "Active" : "Inactive",
                 actions: area.id,
               };
             });
 
             setRows(areas);
+            setRows2(areas);
 
             setErrorMessage("");
           }
         } catch (err) {
+          console.log(err);
+          setHandle(true);
+          setType("error");
+          setMsg(err || "Something Broke, Please try again or contact Admin");
           console.log(err);
           setErrorMessage("Something Broke, Please try again or contact Admin");
         }
@@ -207,7 +229,7 @@ function AreaRegular({ user }: any) {
             Authorization: "Bearer " + user?.api_token,
           });
           let resJson = await res;
-          console.log(resJson);
+          //console.log(resJson);
           setLoading(false);
 
           if (res.res === "error") {
@@ -215,13 +237,16 @@ function AreaRegular({ user }: any) {
               history.push(`/login`);
               return;
             }
+            setHandle(true);
+            setType("error");
+            setMsg(resJson.json.message);
           }
           if (res.res === "success") {
-            console.log(res);
+            //console.log(res);
             // return;
 
             let locs = res.json.data.locations;
-            console.log(locs);
+            //console.log(locs);
 
             setAllLocs(locs);
 
@@ -229,6 +254,11 @@ function AreaRegular({ user }: any) {
           }
         } catch (err) {
           console.log(err);
+          setHandle(true);
+          setType("error");
+          setMsg(err || "Something Broke, Please try again or contact Admin");
+          //console.log(err);
+          setErrorMessage("Something Broke, Please try again or contact Admin");
         }
       }
       return false;
@@ -239,10 +269,10 @@ function AreaRegular({ user }: any) {
   }, [user]);
 
   useEffect(() => {
-    console.log(locations);
-    console.log(name);
-    console.log(nickName);
-    console.log(edit);
+    //console.log(locations);
+    //console.log(name);
+    //console.log(nickName);
+    //console.log(edit);
     let obj: any = {
       name: name,
       nickname: nickName,
@@ -255,28 +285,28 @@ function AreaRegular({ user }: any) {
   }, [locations, name, nickName, edit, currentId]);
 
   const submitParams = (id: any, ed: any) => {
-    console.log(id, ed);
+    //console.log(id, ed);
 
     setCurrentId(id);
     setEdit(ed);
-    console.log(id, ed);
+    //console.log(id, ed);
   };
 
   const handleEdit = async (id: any, obj: any) => {
-    console.log(obj.name.length);
-    console.log(JSON.parse(obj.locations).length);
+    //console.log(obj.name.length);
+    //console.log(JSON.parse(obj.locations).length);
 
     if (
       obj.name.length < 3 &&
       JSON.parse(obj.locations).length < 1 &&
       obj.nickname.length < 3
     ) {
-      console.log(id, "handle edit");
+      //console.log(id, "handle edit");
       setEdit(false);
 
       return;
     } else {
-      console.log(id, "handle edit", obj);
+      //console.log(id, "handle edit", obj);
     }
 
     setLoading(true);
@@ -293,7 +323,7 @@ function AreaRegular({ user }: any) {
       }
 
       if (Object.keys(obj).length === 0) {
-        console.log("how did it even get here");
+        //console.log("how did it even get here");
         setEdit(false);
 
         return;
@@ -302,7 +332,7 @@ function AreaRegular({ user }: any) {
         Authorization: "Bearer " + user?.api_token,
       });
       let resJson = await res;
-      console.log(resJson);
+      //console.log(resJson);
       setLoading(false);
 
       if (res.res === "error") {
@@ -311,18 +341,29 @@ function AreaRegular({ user }: any) {
           history.push(`/login`);
           return;
         }
+
+        setHandle(true);
+        setType("error");
+        setMsg(resJson.json.message);
       }
       if (res.res === "success") {
         setErrorMessage("");
-        window.location.reload();
+        setHandle(true);
+        setType("success");
+        setMsg("Operation was Successful");
       }
     } catch (err) {
       console.log(err);
+      setHandle(true);
+      setType("error");
+      setMsg(err || "Something Broke, Please try again or contact Admin");
+      //console.log(err);
       setErrorMessage("Something Broke, Please try again or contact Admin");
     }
-    console.log("resetting edit");
+    //console.log("resetting edit");
 
     setEdit(false);
+    setTimeout(() => window.location.reload(), 3000);
   };
 
   const disabler = async (id: any) => {
@@ -330,14 +371,14 @@ function AreaRegular({ user }: any) {
   };
 
   const toggler = async (id: any) => {
-    console.log(id);
+    //console.log(id);
 
     let current = areasObj.filter((ao: any) => {
       return ao.id === id;
     });
 
     let status = current[0].status == 1 ? 0 : 1;
-    console.log(current[0].status, status);
+    //console.log(current[0].status, status);
     setLoading(true);
 
     try {
@@ -350,7 +391,7 @@ function AreaRegular({ user }: any) {
         }
       );
       let resJson = await res;
-      console.log(resJson);
+      //console.log(resJson);
       setLoading(false);
 
       if (res.res === "error") {
@@ -359,16 +400,27 @@ function AreaRegular({ user }: any) {
           history.push(`/login`);
           return;
         }
+
+        setHandle(true);
+        setType("error");
+        setMsg(resJson.json.message);
       }
       if (res.res === "success") {
+        setHandle(true);
+        setType("success");
+        setMsg("Operation was Successful");
         setErrorMessage("");
       }
     } catch (err) {
       console.log(err);
+      setHandle(true);
+      setType("error");
+      setMsg(err || "Something Broke, Please try again or contact Admin");
+      console.log(err);
       setErrorMessage("Something Broke, Please try again or contact Admin");
     }
 
-    window.location.reload();
+    setTimeout(() => window.location.reload(), 3000);
   };
 
   const editContent = (id: any) => {
@@ -377,13 +429,13 @@ function AreaRegular({ user }: any) {
         return ao.id === id;
       });
 
-      // console.log(current, allLocs);
+      // //console.log(current, allLocs);
 
       if (locations === []) {
-        console.log(locations);
+        //console.log(locations);
         setLocations(JSON.parse(current[0].locations));
       } else {
-        // console.log(locations);
+        // //console.log(locations);
       }
       // setName(current[0].name);
       // setName(current[0].nickname);
@@ -442,6 +494,17 @@ function AreaRegular({ user }: any) {
               </i>
             </strong>
             details
+            {handle && (
+              <Alert
+                onClose={() => {
+                  window.location.reload();
+                }}
+                severity={type}
+                style={styles.bottom}
+              >
+                {msg}
+              </Alert>
+            )}
             {loading && <LinearProgress />}
           </Typography>
           <Divider />
@@ -509,6 +572,17 @@ function AreaRegular({ user }: any) {
         <Box style={{ margin: "10px" }} width={450}>
           <Typography color="primary" variant="h6">
             Add New Area
+            {handle && (
+              <Alert
+                onClose={() => {
+                  window.location.reload();
+                }}
+                severity={type}
+                style={styles.bottom}
+              >
+                {msg}
+              </Alert>
+            )}
             {loading && <LinearProgress />}
           </Typography>
           <Divider />
@@ -530,19 +604,19 @@ function AreaRegular({ user }: any) {
   };
 
   const handleAdd = async () => {
-    console.log(addName, addNickName, addLocations);
+    //console.log(addName, addNickName, addLocations);
 
     if (
       addName.length < 3 ||
       addLocations.length < 1 ||
       addNickName.length < 3
     ) {
-      console.log("handle add validate");
+      //console.log("handle add validate");
 
       return;
     }
 
-    console.log(user);
+    //console.log(user);
     setLoading(true);
 
     // return;
@@ -562,7 +636,7 @@ function AreaRegular({ user }: any) {
         }
       );
       let resJson = await res;
-      console.log(resJson);
+      //console.log(resJson);
       setLoading(false);
 
       if (res.res === "error") {
@@ -571,29 +645,37 @@ function AreaRegular({ user }: any) {
           history.push(`/login`);
           return;
         }
+
+        setHandle(true);
+        setType("error");
+        setMsg(resJson.json.message);
       }
       if (res.res === "success") {
-        console.log(res);
-
-        window.location.reload();
-
+        setHandle(true);
+        setType("success");
+        setMsg("Operation was Successful");
         setErrorMessage("");
       }
     } catch (err) {
       console.log(err);
+      setHandle(true);
+      setType("error");
+      setMsg(err || "Something Broke, Please try again or contact Admin");
+      console.log(err);
       setErrorMessage("Something Broke, Please try again or contact Admin");
     }
+    setTimeout(() => window.location.reload(), 3000);
   };
 
   const viewContent = (id: any) => {
-    console.log(rows, id, areasObj);
+    //console.log(rows, id, areasObj);
 
     if (rows && areasObj) {
       let current = rows.filter((row: any) => {
         return row.actions === id;
       });
 
-      console.log(current, areasObj);
+      //console.log(current, areasObj);
 
       let content = Object.keys(current[0]).map((a: any, ind) => {
         const buttons = (
@@ -643,9 +725,7 @@ function AreaRegular({ user }: any) {
         ) : (
           <Paper elevation={10} style={{ margin: "10px", padding: "10px" }}>
             <b>{`${usefulServices.capitalizeFirstLetter(a)}`}</b>
-            {a === "status"
-              ? `: ${current[0][a] == 1 ? "Active" : "Inactive"}`
-              : `: ${current[0][a]}`}
+            {`: ${current[0][a]}`}
           </Paper>
         );
       });
@@ -671,8 +751,47 @@ function AreaRegular({ user }: any) {
     return "Not Available";
   };
 
+  const refresh = (ev: any) => {
+    window.location.reload();
+  };
+
+  const filterRows = (ev: any) => {
+    console.log(rows2);
+    let val = ev.target.value;
+    let oldRows = rows;
+    let newRows = oldRows.filter((i: any) => {
+      let keys = Object.keys(i);
+      console.log(keys);
+
+      let filty = keys.filter((k: any) => {
+        return (
+          i[k].toString().toLowerCase().indexOf(val.toString().toLowerCase()) >
+          -1
+        );
+      });
+      console.log(filty);
+
+      return filty.length;
+    });
+
+    console.log(newRows);
+
+    setRows(newRows);
+  };
+
   return (
     <>
+      {handle && (
+        <Alert
+          onClose={() => {
+            window.location.reload();
+          }}
+          severity={type}
+          style={styles.bottom}
+        >
+          {msg}
+        </Alert>
+      )}
       {loading && <LinearProgress />}
       <Grid
         container
@@ -686,9 +805,28 @@ function AreaRegular({ user }: any) {
         </Typography>
 
         <div>
+          {rows && (
+            <>
+              <TextField
+                id="outlined-search"
+                label="Filter"
+                type="search"
+                variant="outlined"
+                size="small"
+                onChange={filterRows}
+              />
+              <Refresh
+                onClick={refresh}
+                style={{ color: "#3F51B5", marginTop: "9px" }}
+              />
+            </>
+          )}
+        </div>
+
+        <div>
           {rows && <span style={{ color: "#3F51B5" }}>Export Data</span>}
           {`  `}
-          {rows && (
+          {rows && parentClass && (
             <Button
               variant="outlined"
               className={clsx(parentClass.textGreen, parentClass.outlinedGreen)}
@@ -715,7 +853,8 @@ function AreaRegular({ user }: any) {
               variant="outlined"
               color="secondary"
               size="small"
-              onClick={csvRows}
+              onClick={() => usefulServices.pdf(rows, "pdfDownload", "pdf")}
+              // disabled={true}
             >
               PDF
             </Button>

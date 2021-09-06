@@ -13,6 +13,7 @@ import TransactionFT from "./TransactionFT";
 import usefulServices from "../services/usefulServices";
 import GlobalServices from "../services/GlobalServices";
 import { useHistory } from "react-router-dom";
+import { Alert } from "@material-ui/lab";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -57,6 +58,10 @@ function Transaction() {
   const [loading, setLoading] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState("");
+
+  const [handle, setHandle] = useState(false);
+  const [type, setType] = useState<any>();
+  const [msg, setMsg] = useState("");
   let history = useHistory();
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
@@ -87,6 +92,9 @@ function Transaction() {
               history.push(`/login`);
               return;
             }
+            setHandle(true);
+            setType("error");
+            setMsg(resJson.json.message);
           }
           if (res.res === "success") {
             console.log(res);
@@ -117,6 +125,10 @@ function Transaction() {
           }
         } catch (err) {
           console.log(err);
+          setHandle(true);
+          setType("error");
+          setMsg(err || "Something Broke, Please try again or contact Admin");
+          console.log(err);
           setErrorMessage("Something Broke, Please try again or contact Admin");
         }
       }
@@ -138,6 +150,17 @@ function Transaction() {
       userGetter={setUser}
       loading={loading}
     >
+      {handle && (
+        <Alert
+          onClose={() => {
+            window.location.reload();
+          }}
+          severity={type}
+          style={styles.bottom}
+        >
+          {msg}
+        </Alert>
+      )}
       {/* {loading && <LinearProgress />} */}
       <Tabs
         value={value}

@@ -18,6 +18,7 @@ import Equipment from "./pages/Equipment";
 import Transaction from "./pages/Transaction";
 import User from "./pages/User";
 import { UserProvider } from "./providers/UserProvider";
+import Snacky from "./components/Snacky";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
             <Route path="/user" exact component={User} />
             <Route path="/home" exact component={Home} />
             <Route path="/abt" exact component={Abt} />
+            <Route path="/snacky" exact component={Snacky} />
             <Route path="/home/:uuid" exact component={Detail} />
           </UserProvider>
         </Switch>

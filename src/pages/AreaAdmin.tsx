@@ -13,6 +13,7 @@ import { useHistory } from "react-router-dom";
 import AppDrawer from "../components/AppDrawer";
 import AppForm from "../components/AppForm";
 import AppCards from "../components/AppCards";
+import { Alert } from "@material-ui/lab";
 
 function AreaAdmin({ user, userSetter }: any) {
   const [cardsObj, setCardsObj] = useState([]);
@@ -27,6 +28,10 @@ function AreaAdmin({ user, userSetter }: any) {
   const [disableName, setDisableName] = useState<boolean>(true);
 
   const [loading, setLoading] = useState(false);
+
+  const [handle, setHandle] = useState(false);
+  const [type, setType] = useState<any>();
+  const [msg, setMsg] = useState("");
 
   let history = useHistory();
 
@@ -61,6 +66,9 @@ function AreaAdmin({ user, userSetter }: any) {
               history.push(`/login`);
               return;
             }
+            setHandle(true);
+            setType("error");
+            setMsg(resJson.json.message);
           }
 
           if (res.res === "success") {
@@ -69,6 +77,10 @@ function AreaAdmin({ user, userSetter }: any) {
             setErrorMessage("");
           }
         } catch (err) {
+          console.log(err);
+          setHandle(true);
+          setType("error");
+          setMsg(err || "Something Broke, Please try again or contact Admin");
           console.log(err);
           setErrorMessage("Something Broke, Please try again or contact Admin");
         }
@@ -130,6 +142,9 @@ function AreaAdmin({ user, userSetter }: any) {
           history.push(`/login`);
           return;
         }
+        setHandle(true);
+        setType("error");
+        setMsg(resJson.json.message);
       }
       if (res.res === "success") {
         let oldUser = JSON.parse(sessionStorage.getItem("user") || "");
@@ -147,8 +162,14 @@ function AreaAdmin({ user, userSetter }: any) {
       }
     } catch (err) {
       console.log(err);
+      setHandle(true);
+      setType("error");
+      setMsg(err || "Something Broke, Please try again or contact Admin");
+      console.log(err);
       setErrorMessage("Something Broke, Please try again or contact Admin");
     }
+
+    setTimeout(() => window.location.reload(), 3000);
   };
 
   useEffect(() => {
@@ -201,6 +222,17 @@ function AreaAdmin({ user, userSetter }: any) {
 
   return (
     <>
+      {handle && (
+        <Alert
+          onClose={() => {
+            window.location.reload();
+          }}
+          severity={type}
+          style={styles.bottom}
+        >
+          {msg}
+        </Alert>
+      )}
       {loading && <LinearProgress />}
       <div style={styles.top} />
       <AppCards obj={cardsObj} />
@@ -215,6 +247,17 @@ function AreaAdmin({ user, userSetter }: any) {
         Area Information
         <Divider />
       </Typography>
+      {handle && (
+        <Alert
+          onClose={() => {
+            window.location.reload();
+          }}
+          severity={type}
+          style={styles.bottom}
+        >
+          {msg}
+        </Alert>
+      )}
       {loading && <LinearProgress />}
 
       <AppForm

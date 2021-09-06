@@ -28,4 +28,8 @@ export default class usefulServices {
 
     exportFromJSON({ data, fileName, exportType });
   };
+
+  static pdf = (dt: any, file: string, type: any): void => {
+    alert("Coming Soon");
+  };
 }

@@ -7,6 +7,7 @@ import UserLocation from "./UserLocation";
 import usefulServices from "../services/usefulServices";
 import { useHistory } from "react-router-dom";
 import GlobalServices from "../services/GlobalServices";
+import { Alert } from "@material-ui/lab";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -55,6 +56,10 @@ function User() {
 
   const [loading, setLoading] = useState(false);
 
+  const [handle, setHandle] = useState(false);
+  const [type, setType] = useState<any>();
+  const [msg, setMsg] = useState("");
+
   let history = useHistory();
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
@@ -80,6 +85,9 @@ function User() {
               history.push(`/login`);
               return;
             }
+            setHandle(true);
+            setType("error");
+            setMsg(resJson.json.message);
           }
           if (res.res === "success") {
             console.log(res);
@@ -123,6 +131,10 @@ function User() {
           }
         } catch (err) {
           console.log(err);
+          setHandle(true);
+          setType("error");
+          setMsg(err || "Something Broke, Please try again or contact Admin");
+          console.log(err);
           setErrorMessage("Something Broke, Please try again or contact Admin");
         }
       }
@@ -144,6 +156,17 @@ function User() {
       userGetter={setUser}
       loading={loading}
     >
+      {handle && (
+        <Alert
+          onClose={() => {
+            window.location.reload();
+          }}
+          severity={type}
+          style={styles.bottom}
+        >
+          {msg}
+        </Alert>
+      )}
       {/* {loading && <LinearProgress />} */}
       <Tabs
         value={value}

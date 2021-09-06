@@ -5,7 +5,14 @@ import AddIcon from "@material-ui/icons/Add";
 import AppFrame from "../components/AppFrame";
 import Typography from "@material-ui/core/Typography";
 import AppTable from "../components/AppTable";
-import { Box, Button, Divider, LinearProgress, Paper } from "@material-ui/core";
+import {
+  Box,
+  Button,
+  Divider,
+  LinearProgress,
+  Paper,
+  TextField,
+} from "@material-ui/core";
 import clsx from "clsx";
 import { useHistory } from "react-router-dom";
 import AppDrawer from "../components/AppDrawer";
@@ -13,6 +20,8 @@ import usefulServices from "../services/usefulServices";
 import AppForm from "../components/AppForm";
 import GlobalServices from "../services/GlobalServices";
 import AppEmpty from "../components/AppEmpty";
+import { Refresh } from "@material-ui/icons";
+import { Alert } from "@material-ui/lab";
 
 function UserCompany({ parentRows, user }: any) {
   const [parentClass, setParentClass] = useState<any>();
@@ -36,6 +45,10 @@ function UserCompany({ parentRows, user }: any) {
 
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [handle, setHandle] = useState(false);
+  const [type, setType] = useState<any>();
+  const [msg, setMsg] = useState("");
 
   let history = useHistory();
 
@@ -128,7 +141,7 @@ function UserCompany({ parentRows, user }: any) {
           userName: pr?.email || "N/A",
           fullName: pr?.name || "N/A",
           companyName: pr?.company.name || "N/A",
-          status: pr.status,
+          status: pr.status == 1 ? "Active" : "Inactive",
           actions: pr.id,
         };
       });
@@ -197,9 +210,7 @@ function UserCompany({ parentRows, user }: any) {
         ) : (
           <Paper elevation={10} style={{ margin: "10px", padding: "10px" }}>
             <b>{`${usefulServices.capitalizeFirstLetter(a)}`}</b>
-            {a === "status"
-              ? `: ${current[0][a] == 1 ? "Active" : "Inactive"}`
-              : `: ${current[0][a]}`}
+            {`: ${current[0][a]}`}
           </Paper>
         );
       });
@@ -283,6 +294,17 @@ function UserCompany({ parentRows, user }: any) {
               </i>
             </strong>
             details
+            {handle && (
+              <Alert
+                onClose={() => {
+                  window.location.reload();
+                }}
+                severity={type}
+                style={styles.bottom}
+              >
+                {msg}
+              </Alert>
+            )}
             {loading && <LinearProgress />}
           </Typography>
           <Divider />
@@ -376,18 +398,28 @@ function UserCompany({ parentRows, user }: any) {
           history.push(`/login`);
           return;
         }
+        setHandle(true);
+        setType("error");
+        setMsg(resJson.json.message);
       }
       if (res.res === "success") {
+        setHandle(true);
+        setType("success");
+        setMsg("Operation was Successful");
         setErrorMessage("");
-        window.location.reload();
       }
     } catch (err) {
+      console.log(err);
+      setHandle(true);
+      setType("error");
+      setMsg(err || "Something Broke, Please try again or contact Admin");
       console.log(err);
       setErrorMessage("Something Broke, Please try again or contact Admin");
     }
     console.log("resetting edit");
 
     setEdit(false);
+    setTimeout(() => window.location.reload(), 3000);
   };
 
   const toggler = async (id: any) => {
@@ -420,16 +452,27 @@ function UserCompany({ parentRows, user }: any) {
           history.push(`/login`);
           return;
         }
+        setHandle(true);
+        setType("error");
+        setMsg(resJson.json.message);
       }
       if (res.res === "success") {
+        setHandle(true);
+        setType("success");
+        setMsg("Operation was Successful");
         setErrorMessage("");
       }
     } catch (err) {
       console.log(err);
+      setHandle(true);
+      setType("error");
+      setMsg(err || "Something Broke, Please try again or contact Admin");
+      console.log(err);
       setErrorMessage("Something Broke, Please try again or contact Admin");
     }
+    setTimeout(() => window.location.reload(), 3000);
 
-    window.location.reload();
+    // window.location.reload();
   };
 
   const disabler = async (id: any) => {
@@ -493,6 +536,17 @@ function UserCompany({ parentRows, user }: any) {
         <Box style={{ margin: "10px" }} width={450}>
           <Typography color="primary" variant="h6">
             Add New User
+            {handle && (
+              <Alert
+                onClose={() => {
+                  window.location.reload();
+                }}
+                severity={type}
+                style={styles.bottom}
+              >
+                {msg}
+              </Alert>
+            )}
             {loading && <LinearProgress />}
           </Typography>
           <Divider />
@@ -559,23 +613,70 @@ function UserCompany({ parentRows, user }: any) {
           history.push(`/login`);
           return;
         }
+        setHandle(true);
+        setType("error");
+        setMsg(resJson.json.message);
       }
       if (res.res === "success") {
-        console.log(res);
-
-        window.location.reload();
-
+        setHandle(true);
+        setType("success");
+        setMsg("Operation was Successful");
         setErrorMessage("");
       }
     } catch (err) {
       console.log(err);
+      setHandle(true);
+      setType("error");
+      setMsg(err || "Something Broke, Please try again or contact Admin");
+      console.log(err);
       setErrorMessage("Something Broke, Please try again or contact Admin");
     }
+    setTimeout(() => window.location.reload(), 3000);
+  };
+
+  const refresh = (ev: any) => {
+    window.location.reload();
+  };
+
+  const filterRows = (ev: any) => {
+    let val = ev.target.value;
+    let oldRows = rows;
+    let newRows = oldRows.filter((i: any) => {
+      let keys = Object.keys(i);
+      console.log(keys);
+
+      let filty = keys.filter((k: any) => {
+        return (
+          i[k].toString().toLowerCase().indexOf(val.toString().toLowerCase()) >
+          -1
+        );
+      });
+      console.log(filty);
+
+      return filty.length;
+    });
+
+    console.log(newRows);
+
+    setRows(newRows);
   };
 
   return (
     <div>
+      {handle && (
+        <Alert
+          onClose={() => {
+            window.location.reload();
+          }}
+          severity={type}
+          style={styles.bottom}
+        >
+          {msg}
+        </Alert>
+      )}
       {loading && <LinearProgress />}
+      <div style={styles.top}></div>
+
       <Grid
         container
         direction="row"
@@ -583,8 +684,65 @@ function UserCompany({ parentRows, user }: any) {
         alignItems="center"
       >
         <Typography color="primary" variant="subtitle1">
-          Manage Company Users
+          <b>Manage Company Users</b>
         </Typography>
+
+        <div>
+          {rows && (
+            <>
+              <TextField
+                id="outlined-search"
+                label="Filter"
+                type="search"
+                variant="outlined"
+                size="small"
+                onChange={filterRows}
+              />
+              <Refresh
+                onClick={refresh}
+                style={{ color: "#3F51B5", marginTop: "9px" }}
+              />
+            </>
+          )}
+        </div>
+
+        <div>
+          {rows && <span style={{ color: "#3F51B5" }}>Export Data</span>}
+          {`  `}
+          {rows && parentClass && (
+            <Button
+              variant="outlined"
+              className={clsx(parentClass.textGreen, parentClass.outlinedGreen)}
+              size="small"
+              onClick={() => usefulServices.csv(rows, "csvDowload", "csv")}
+            >
+              CSV
+            </Button>
+          )}
+          {` `}
+          {rows && (
+            <Button
+              variant="outlined"
+              color="primary"
+              size="small"
+              onClick={() => usefulServices.csv(rows, "xlsDownload", "xls")}
+            >
+              Xls
+            </Button>
+          )}
+          {` `}
+          {rows && (
+            <Button
+              variant="outlined"
+              color="secondary"
+              size="small"
+              onClick={() => usefulServices.pdf(rows, "pdfDownload", "pdf")}
+              // disabled={true}
+            >
+              PDF
+            </Button>
+          )}
+        </div>
 
         <Typography color="primary" variant="subtitle1">
           {rows ? `Total: ${rows.length}` : ""}

@@ -13,11 +13,14 @@ import green from "@material-ui/core/colors/green";
 import orange from "@material-ui/core/colors/orange";
 import cyan from "@material-ui/core/colors/cyan";
 import red from "@material-ui/core/colors/red";
+import { Typography } from "@material-ui/core";
 
 interface Props {
   columns: any[];
   rows: any[];
   classSetter?: any;
+  paginate?: boolean;
+  title?: any;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -174,13 +177,21 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function AppTable({ columns, rows, classSetter }: Props) {
+export default function AppTable({
+  columns,
+  rows,
+  classSetter,
+  paginate = true,
+  title,
+}: Props) {
   const classes = useStyles();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
-    classSetter(classes);
+    if (classSetter) {
+      classSetter(classes);
+    }
   }, [classes]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -198,6 +209,14 @@ export default function AppTable({ columns, rows, classSetter }: Props) {
     <div>
       {columns && rows ? (
         <Paper className={classes.root} elevation={15}>
+          {title && (
+            <Typography
+              align="center"
+              style={{ paddingTop: "10px", paddingBottom: "10px" }}
+            >
+              {title}
+            </Typography>
+          )}
           <TableContainer className={classes.container}>
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
@@ -240,15 +259,17 @@ export default function AppTable({ columns, rows, classSetter }: Props) {
               </TableBody>
             </Table>
           </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[10, 25, 100]}
-            component="div"
-            count={rows.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onChangePage={handleChangePage}
-            onChangeRowsPerPage={handleChangeRowsPerPage}
-          />
+          {paginate && (
+            <TablePagination
+              rowsPerPageOptions={[10, 25, 100]}
+              component="div"
+              count={rows.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onChangePage={handleChangePage}
+              onChangeRowsPerPage={handleChangeRowsPerPage}
+            />
+          )}
         </Paper>
       ) : null}
     </div>

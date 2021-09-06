@@ -17,6 +17,7 @@ import clsx from "clsx";
 import GlobalServices from "./services/GlobalServices";
 import { UserContext } from "./context/UserContext";
 import { LinearProgress } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 // import { Snackbar } from "@material-ui/core";
 // import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 
@@ -36,13 +37,18 @@ import { LinearProgress } from "@material-ui/core";
 //     </Typography>
 //   );
 // }
+const bgImage = () => {
+  let num = Math.floor(Math.random() * (9 - 0 + 1) + 0);
+
+  return process.env.PUBLIC_URL + "/bgs/bg" + num + ".jpg";
+};
 
 const useStyles = makeStyles((theme) => ({
   root: {
     height: "100vh",
   },
   image: {
-    backgroundImage: "url(https://source.unsplash.com/random)",
+    backgroundImage: `url("${bgImage()}")`,
     backgroundRepeat: "no-repeat",
     backgroundColor:
       theme.palette.type === "light"
@@ -75,7 +81,7 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(3, 0, 2),
   },
   pos: {
-    marginBottom: 20,
+    marginBottom: "20px",
   },
   large: {
     width: theme.spacing(10),
@@ -90,6 +96,10 @@ export default function SignInSide() {
   const [errorMessage, setErrorMessage] = useState("");
 
   const [loading, setLoading] = useState(false);
+
+  const [handle, setHandle] = useState(false);
+  const [type, setType] = useState<any>();
+  const [msg, setMsg] = useState("");
 
   let history = useHistory();
 
@@ -109,6 +119,9 @@ export default function SignInSide() {
 
       if (res.res === "error") {
         setErrorMessage(resJson.json.message);
+        setHandle(true);
+        setType("error");
+        setMsg(resJson.json.message);
       }
 
       if (res.res === "success") {
@@ -119,6 +132,10 @@ export default function SignInSide() {
         history.push(`/dashboard`);
       }
     } catch (err) {
+      console.log(err);
+      setHandle(true);
+      setType("error");
+      setMsg("Something Broke, Please try again or contact Admin");
       console.log(err);
       setErrorMessage("Something Broke, Please try again or contact Admin");
     }
@@ -155,7 +172,7 @@ export default function SignInSide() {
         <div className={classes.paper}>
           <Avatar
             alt="Remy Sharp"
-            src="https://source.unsplash.com/random"
+            src={bgImage()}
             className={clsx(classes.large, classes.pos)}
           />
           <Typography component="h1" color="primary" variant="h3">
@@ -163,10 +180,21 @@ export default function SignInSide() {
           </Typography>
           <Typography component="h5" color="primary" variant="h5">
             Welcome, you can Sign In here
+            {handle && (
+              <Alert
+                onClose={() => {
+                  window.location.reload();
+                }}
+                severity={type}
+                className={classes.pos}
+              >
+                {msg}
+              </Alert>
+            )}
             {loading && <LinearProgress />}
           </Typography>
-          <br />
-          <Typography color="error">{errorMessage}</Typography>
+          {/* <br />
+          <Typography color="error">{errorMessage}</Typography> */}
           <form
             className={classes.form}
             noValidate

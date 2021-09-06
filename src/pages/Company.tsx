@@ -8,6 +8,7 @@ import AppForm from "../components/AppForm";
 import AppFrame from "../components/AppFrame";
 import GlobalServices from "../services/GlobalServices";
 import usefulServices from "../services/usefulServices";
+import { Alert } from "@material-ui/lab";
 
 function Company() {
   const [cardsObj, setCardsObj] = useState([]);
@@ -17,6 +18,10 @@ function Company() {
   const [user, setUser] = useState<any>();
   const [loading, setLoading] = useState(false);
 
+  const [handle, setHandle] = useState(false);
+  const [type, setType] = useState<any>();
+  const [msg, setMsg] = useState("");
+
   let history = useHistory();
 
   const [companyName, setCompanyName] = useState("");
@@ -25,11 +30,11 @@ function Company() {
 
   const styles = {
     top: {
-      marginBottom: "20px",
+      marginTop: "20px",
     },
     bottom: {
       // borderBottom: "1px solid #fafafa",
-      marginTop: "110px",
+      // marginTop: "110px",
       marginBottom: "20px",
     },
   };
@@ -67,6 +72,9 @@ function Company() {
               history.push(`/login`);
               return;
             }
+            setHandle(true);
+            setType("error");
+            setMsg(resJson.json.message);
           }
 
           if (res.res === "success") {
@@ -75,6 +83,10 @@ function Company() {
             setErrorMessage("");
           }
         } catch (err) {
+          console.log(err);
+          setHandle(true);
+          setType("error");
+          setMsg(err || "Something Broke, Please try again or contact Admin");
           console.log(err);
           setErrorMessage("Something Broke, Please try again or contact Admin");
         }
@@ -148,6 +160,9 @@ function Company() {
           history.push(`/login`);
           return;
         }
+        setHandle(true);
+        setType("error");
+        setMsg(resJson.json.message);
       }
       if (res.res === "success") {
         let oldUser = JSON.parse(sessionStorage.getItem("user") || "");
@@ -160,12 +175,20 @@ function Company() {
         sessionStorage.setItem("user", JSON.stringify(newUser));
         setUser(newUser.data);
 
+        setHandle(true);
+        setType("success");
+        setMsg("Operation was Successful");
         setErrorMessage("");
       }
     } catch (err) {
       console.log(err);
+      setHandle(true);
+      setType("error");
+      setMsg(err || "Something Broke, Please try again or contact Admin");
+      console.log(err);
       setErrorMessage("Something Broke, Please try again or contact Admin");
     }
+    setTimeout(() => window.location.reload(), 3000);
   };
 
   return (
@@ -182,8 +205,24 @@ function Company() {
       loading={loading}
     >
       <div style={styles.top}></div>
-      {/* {loading && <LinearProgress />} */}
+
+      {loading && <LinearProgress style={styles.top} />}
+      <div style={styles.top}></div>
       <AppCards obj={cardsObj} />
+
+      <div style={styles.top}></div>
+
+      {handle && (
+        <Alert
+          onClose={() => {
+            window.location.reload();
+          }}
+          severity={type}
+          style={styles.bottom}
+        >
+          {msg}
+        </Alert>
+      )}
 
       <Typography
         style={styles.bottom}

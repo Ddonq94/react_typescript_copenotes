@@ -44,10 +44,11 @@ import { UserContext } from "../context/UserContext";
 import GlobalServices from "../services/GlobalServices";
 import usefulServices from "../services/usefulServices";
 import { LinearProgress } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 
 interface Props {
   children: any;
-  headerText?: string;
+  headerText?: any;
   headerTextPosition?: GridJustification;
   headerTextSize?: Variant;
   frameTitle?: string;
@@ -55,7 +56,7 @@ interface Props {
   loading: boolean;
 }
 
-const drawerWidth = 210;
+const drawerWidth = 200;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -77,6 +78,9 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     top: {
       marginTop: "60px",
+    },
+    bottom: {
+      marginBottom: "20px",
     },
     flexRight: {
       justifySelf: "flex-end",
@@ -193,11 +197,15 @@ function AppFrame({
 }: Props) {
   const classes = useStyles();
   const theme = useTheme();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [user, setUser] = useState<any>();
   const [logoUrl, setLogoUrl] = useState("https://source.unsplash.com/random");
   const [menuObj, setMenuObj] = useState<any>();
+
+  const [handle, setHandle] = useState(false);
+  const [type, setType] = useState<any>();
+  const [msg, setMsg] = useState("");
 
   // const [loading, setLoading] = useState(true);
 
@@ -231,15 +239,16 @@ function AppFrame({
         linkTo: "/company",
       },
       {
-        name: "Area Mgt.",
-        icon: <MapIcon />,
-        linkTo: "/area",
-      },
-      {
         name: "Location Mgt.",
         icon: <RoomIcon />,
         linkTo: "/location",
       },
+      {
+        name: "Area Mgt.",
+        icon: <MapIcon />,
+        linkTo: "/area",
+      },
+
       {
         name: "Equipment Mgt.",
         icon: <BuildIcon />,
@@ -388,7 +397,18 @@ function AppFrame({
       </Drawer>
       <main className={classes.content}>
         <div className={classes.top} />
-        {loading && <LinearProgress />}
+        {handle && (
+          <Alert
+            onClose={() => {
+              window.location.reload();
+            }}
+            severity={type}
+            className={classes.bottom}
+          >
+            {msg}
+          </Alert>
+        )}
+        {/* {loading && <LinearProgress />} */}
         <Grid container justify={headerTextPosition}>
           <Typography variant={headerTextSize} color="primary" noWrap>
             {headerText}

@@ -86,7 +86,7 @@ function AppFilterBar({ user }: any) {
               id="demo-simple-select"
               value={equipment}
             >
-              <MenuItem value={10}>Fire Truck</MenuItem>
+              {/* <MenuItem value={10}>Fire Truck</MenuItem> */}
               <MenuItem value={11}>Fire Extinguisher</MenuItem>
             </Select>
           </FormControl>
