@@ -81,7 +81,7 @@ function TransactionFE({ parentRows, user }: any) {
                   drawerText="View"
                 />
 
-                <Button
+                {/* <Button
                   variant="outlined"
                   className={clsx(
                     parentClass.textCyan,
@@ -102,7 +102,7 @@ function TransactionFE({ parentRows, user }: any) {
                   onClick={() => toggler(value, false)}
                 >
                   Disapprove
-                </Button>
+                </Button> */}
               </div>
             );
           },
@@ -240,7 +240,7 @@ function TransactionFE({ parentRows, user }: any) {
             style={{
               margin: "10px",
               padding: "10px",
-              display: "flex",
+              display: "none",
               justifyContent: "space-between",
             }}
           >
@@ -311,11 +311,11 @@ function TransactionFE({ parentRows, user }: any) {
       console.log(err);
       setHandle(true);
       setType("error");
-      setMsg(err || "Something Broke, Please try again or contact Admin");
+      setMsg("Something Broke, Please try again or contact Admin");
       console.log(err);
       setHandle(true);
       setType("error");
-      setMsg(err || "Something Broke, Please try again or contact Admin");
+      setMsg("Something Broke, Please try again or contact Admin");
       setErrorMessage("Something Broke, Please try again or contact Admin");
     }
     setTimeout(() => window.location.reload(), 3000);

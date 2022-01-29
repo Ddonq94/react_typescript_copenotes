@@ -48,7 +48,7 @@ export default class ApiService {
     // console.log(err);
     // setHandle(true);
     // setType("error");
-    // setMsg(err || "Something Broke, Please try again or contact Admin");
+    // setMsg("Something Broke, Please try again or contact Admin");
     //   console.log(err);
 
     //   responseData = null;

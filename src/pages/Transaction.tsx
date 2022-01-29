@@ -103,17 +103,18 @@ function Transaction() {
 
             console.log(res.json.data);
 
-            let fe, ft;
+            let fe;
+            let ft;
 
             if (user.type === "area" || user.type === "location") {
               fe = res.json.data.transactionsFE;
               ft = res.json.data.transactionsFT;
             } else {
               fe = all.filter((tr: any) => {
-                return tr.equipment[0].type === "A";
+                return tr.equipment.length && tr.equipment[0].type === "A";
               });
               ft = all.filter((tr: any) => {
-                return tr.equipment[0].type === "B";
+                return tr.equipment.length && tr.equipment[0].type === "B";
               });
             }
             console.log(fe, ft);
@@ -127,7 +128,7 @@ function Transaction() {
           console.log(err);
           setHandle(true);
           setType("error");
-          setMsg(err || "Something Broke, Please try again or contact Admin");
+          setMsg("Something Broke, Please try again or contact Admin");
           console.log(err);
           setErrorMessage("Something Broke, Please try again or contact Admin");
         }

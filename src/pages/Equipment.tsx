@@ -110,7 +110,7 @@ function Equipment() {
           console.log(err);
           setHandle(true);
           setType("error");
-          setMsg(err || "Something Broke, Please try again or contact Admin");
+          setMsg("Something Broke, Please try again or contact Admin");
           console.log(err);
           setErrorMessage("Something Broke, Please try again or contact Admin");
         }

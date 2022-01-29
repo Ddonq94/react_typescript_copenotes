@@ -45,6 +45,7 @@ import GlobalServices from "../services/GlobalServices";
 import usefulServices from "../services/usefulServices";
 import { LinearProgress } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
+import { Assessment } from "@material-ui/icons";
 
 interface Props {
   children: any;
@@ -263,6 +264,11 @@ function AppFrame({
         name: "User Mgt.",
         icon: <GroupIcon />,
         linkTo: "/user",
+      },
+      {
+        name: "Reports",
+        icon: <Assessment />,
+        linkTo: "/report",
       },
       {
         name: "Logout",

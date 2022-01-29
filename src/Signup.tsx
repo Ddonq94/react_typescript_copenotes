@@ -22,7 +22,8 @@ import { Alert } from "@material-ui/lab";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      minWidth: 275,
+      minWidth: 200,
+      width: 600,
     },
     margin: {
       margin: theme.spacing(9),
@@ -50,6 +51,12 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
+
+const bgImage = () => {
+  let num = Math.floor(Math.random() * (9 - 0 + 1) + 0);
+
+  return process.env.PUBLIC_URL + "/bgs/bg" + num + ".jpg";
+};
 
 export default function Signup() {
   const classes = useStyles();
@@ -201,7 +208,7 @@ export default function Signup() {
       console.log(err);
       setHandle(true);
       setType("error");
-      setMsg(err || "Something Broke, Please try again or contact Admin");
+      setMsg("Something Broke, Please try again or contact Admin");
       console.log(err);
       setErrorMessage("Something Broke, Please try again or contact Admin");
     }
@@ -211,70 +218,72 @@ export default function Signup() {
   let submitButtonPosition: GridJustification = "center";
 
   return (
-    <Card className={clsx(classes.root, classes.margin, classes.pos)}>
-      <CardContent className={classes.inMargin}>
-        <Grid container justify="center">
-          <Grid container justify="center" item xs={12}>
-            <Avatar
-              alt="Remy Sharp"
-              src="https://source.unsplash.com/random"
-              className={clsx(classes.large, classes.inMargin)}
-            />
+    <Grid container justify="center">
+      <Card className={clsx(classes.root, classes.margin, classes.pos)}>
+        <CardContent className={classes.inMargin}>
+          <Grid container justify="center">
+            <Grid container justify="center" item xs={12}>
+              <Avatar
+                alt="Remy Sharp"
+                src={bgImage()}
+                className={clsx(classes.large, classes.inMargin)}
+              />
+            </Grid>
+            <Grid item xs={9} className={classes.pos}>
+              <Typography
+                component="h5"
+                variant="h5"
+                align="center"
+                color="primary"
+              >
+                Welcome, Create Your Account Here
+                {handle && (
+                  <Alert
+                    onClose={() => {
+                      window.location.reload();
+                    }}
+                    severity={type}
+                    className={classes.pos}
+                  >
+                    {msg}
+                  </Alert>
+                )}
+                {loading && <LinearProgress />}
+              </Typography>
+            </Grid>
           </Grid>
-          <Grid item xs={9} className={classes.pos}>
-            <Typography
-              component="h4"
-              variant="h4"
-              align="center"
-              color="primary"
-            >
-              Welcome, Create Your Account Here
-              {handle && (
-                <Alert
-                  onClose={() => {
-                    window.location.reload();
-                  }}
-                  severity={type}
-                  className={classes.pos}
-                >
-                  {msg}
-                </Alert>
-              )}
-              {loading && <LinearProgress />}
-            </Typography>
-          </Grid>
-        </Grid>
 
-        {/* <Typography align="center" color="error">
+          {/* <Typography align="center" color="error">
           {errorMessage}
         </Typography> */}
 
-        <AppForm
-          fields={fields}
-          submitString={submitString}
-          submitButtonPosition={submitButtonPosition}
-          submitButtonMethod={handleSignup}
-        />
+          <AppForm
+            fields={fields}
+            submitString={submitString}
+            submitButtonPosition={submitButtonPosition}
+            submitButtonMethod={handleSignup}
+          />
 
-        <Grid
-          container
-          direction="row"
-          justify="space-between"
-          alignItems="center"
-          className={classes.posUp}
-        >
-          <Typography component="h6" variant="h6">
-            <Link to="/login"> Sign In</Link>
-          </Typography>
+          <Grid
+            container
+            direction="row"
+            justify="space-between"
+            alignItems="center"
+            className={classes.posUp}
+          >
+            <Typography component="h6" variant="h6">
+              <Link to="/login"> Sign In</Link>
+            </Typography>
 
-          <Typography component="h6" variant="h6">
-            <Link to="/login"> Administrator</Link>
-          </Typography>
-        </Grid>
-      </CardContent>
-      {/* <CardActions>
+            <Typography component="h6" variant="h6">
+              <Link to="/login"> Administrator</Link>
+            </Typography>
+          </Grid>
+        </CardContent>
+        {/* <CardActions>
         <Button size="small">Learn More</Button>
       </CardActions> */}
-    </Card>
+      </Card>
+    </Grid>
   );
 }

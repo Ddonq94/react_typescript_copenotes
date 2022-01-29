@@ -226,7 +226,7 @@ function Dashboard() {
           console.log(err);
           setHandle(true);
           setType("error");
-          setMsg(err || "Something Broke, Please try again or contact Admin");
+          setMsg("Something Broke, Please try again or contact Admin");
           console.log(err);
           setErrorMessage("Something Broke, Please try again or contact Admin");
         }
@@ -265,7 +265,7 @@ function Dashboard() {
           {msg}
         </Alert>
       )}
-      {/* {loading && <LinearProgress />} */}
+      {loading && <LinearProgress />}
       {/* {user && <AppFilterBar user={user} />} */}
 
       <Grid container spacing={3} style={{ marginTop: "20px" }}>
