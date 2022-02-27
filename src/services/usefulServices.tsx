@@ -1,35 +1,54 @@
-import exportFromJSON from "export-from-json";
-
-const companyTypes = ["super", "company"];
-const areaTypes = ["super", "company", "area"];
-const types = ["super", "company", "area", "location"];
+import { ISpecialCountryFields } from "../types/types";
 
 export default class usefulServices {
   static capitalizeFirstLetter(string: string): string {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
 
-  static getCoyTypes = (): string[] => {
-    return companyTypes;
-  };
+  static getCountries(): ISpecialCountryFields[] {
+    return [
+      {
+        name: "spain",
+        firstName: true,
+        lastName: true,
+        dob: true,
+        holidayAllowance: true,
+        maritalStatus: true,
+        SIN: true,
+        minHolidayAllowance: 30,
+      },
+      {
+        name: "ghana",
+        firstName: true,
+        lastName: true,
+        dob: true,
+        holidayAllowance: true,
+        maritalStatus: true,
+        numberOfChildren: true,
+      },
+      {
+        name: "brazil",
+        firstName: true,
+        lastName: true,
+        dob: true,
+        holidayAllowance: true,
+        workingHours: true,
+        maxHolidayAllowance: 40,
+      },
+    ];
+  }
 
-  static getAreaTypes = (): string[] => {
-    return areaTypes;
-  };
+  static getCountryNames(): string[] {
+    return this.getCountries().map((val: ISpecialCountryFields) => val.name);
+  }
 
-  static getTypes = (): string[] => {
-    return types;
-  };
+  static getCountryByName(name: string): ISpecialCountryFields {
+    return this.getCountries().filter(
+      (val: ISpecialCountryFields) => val.name === name
+    )[0];
+  }
 
-  static csv = (dt: any, file: string, type: any): void => {
-    const data = dt || [{ foo: "foo" }, { bar: "bar" }];
-    const fileName = file || "download";
-    const exportType = type || "csv";
-
-    exportFromJSON({ data, fileName, exportType });
-  };
-
-  static pdf = (dt: any, file: string, type: any): void => {
-    alert("Coming Soon");
-  };
+  static getMaritalSatuses(): string[] {
+    return ["single", "married", "widow", "widower", "divorced"];
+  }
 }
