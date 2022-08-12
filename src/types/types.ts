@@ -1,30 +1,13 @@
-export interface ICountryFields {
+export interface IUser {
+  id: string;
   name: string;
-  firstName: boolean;
-  lastName: boolean;
-  dob: boolean;
-  holidayAllowance: boolean;
+  email: string;
+  sentMessages?: ISentMessage[];
 }
 
-export interface ISpecialCountryFields extends ICountryFields {
-  maritalStatus?: boolean;
-  SIN?: boolean;
-  minHolidayAllowance?: number;
-  maxHolidayAllowance?: number;
-  numberOfChildren?: boolean;
-  workingHours?: boolean;
-}
-
-export interface IRegisterObject {
-  country: string;
-  firstName: string;
-  lastName: string;
-  dob: string;
-  holidayAllowance: number;
-  maritalStatus?: string;
-  SIN?: string;
-  numberOfChildren?: number;
-  workingHours?: number;
+export interface ISentMessage {
+  id: number;
+  message: string;
 }
 
 export interface Icomponent {

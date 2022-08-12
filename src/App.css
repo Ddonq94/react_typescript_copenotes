@@ -1,5 +1,21 @@
 .App {
-  margin-top: 50px !important;
+  margin: 20px 50px !important;
+  padding: 0 0 50px !important;
+}
+
+.AppRegister {
+  width: 30%;
+}
+
+.AppRegisterButtons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.AppViewHead {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .fullWidth {

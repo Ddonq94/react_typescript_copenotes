@@ -1,6 +1,6 @@
 import React from "react";
 import { cleanup, render } from "@testing-library/react";
-import AppRegister from "./AppRegister";
+import AppView from "./AppView";
 
 afterEach(() => {
   cleanup();
@@ -8,11 +8,11 @@ afterEach(() => {
 
 test("renders component", () => {
   const TestFn = () => {
-    return <AppRegister testID="AppRegister" />;
+    return <AppView testID="AppView" />;
   };
 
   const { getByTestId } = render(<TestFn />);
-  const content = getByTestId("AppRegister");
+  const content = getByTestId("AppView");
   expect(content).toBeDefined();
   expect(content).toBeInTheDocument();
   expect(content).toBeDefined();

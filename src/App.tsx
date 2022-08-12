@@ -2,16 +2,24 @@ import React from "react";
 import "antd/dist/antd.css";
 import "./App.css";
 import AppRegister from "./components/AppRegister";
-import { Col, Row } from "antd";
+import AppView from "./components/AppView";
+import { Tabs } from "antd";
 
 function App() {
+  const { TabPane } = Tabs;
+
   return (
-    <Row className="App">
-      <Col offset={8} span={8}>
-        <h3>Omnipresent Onboarding</h3>
-        <AppRegister />
-      </Col>
-    </Row>
+    <section className="App">
+      <h1>Welcome to Copenotes</h1>
+      <Tabs type="card" destroyInactiveTabPane={true}>
+        <TabPane tab="Add Users" key="1">
+          <AppRegister />
+        </TabPane>
+        <TabPane tab="View Users" key="2">
+          <AppView />
+        </TabPane>
+      </Tabs>
+    </section>
   );
 }
 
