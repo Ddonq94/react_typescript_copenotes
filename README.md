@@ -1,5 +1,7 @@
 # Getting Started with Copenotes React App
 
+React app with user creation form and viewing users and their sent messages that sends random motivational messages from a list to people at regular intervals with no repetition
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
